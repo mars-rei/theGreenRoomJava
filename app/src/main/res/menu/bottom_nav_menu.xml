@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="#1e1e1e">
+
+    <item
+        android:id="@+id/events"
+        android:title="Events"
+        android:icon="@drawable/navigation"/>
+    <item
+        android:id="@+id/feed"
+        android:title="Feed"
+        android:icon="@drawable/feed"/>
+    <item
+        android:id="@+id/notifications"
+        android:title="Notifications"
+        android:icon="@drawable/notifications"/>
+    <item
+        android:id="@+id/profile"
+        android:title="Profile"
+        android:icon="@drawable/profile"/>
+</menu>
