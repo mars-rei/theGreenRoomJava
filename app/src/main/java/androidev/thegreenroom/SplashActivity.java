@@ -13,7 +13,7 @@ public class SplashActivity extends AppCompatActivity { private long ms=0;
                 while (ms < splashTime) { ms = ms+100; sleep(100);
                 }
             } catch (Exception e) {} finally {
-                Intent intent = new Intent(getApplicationContext(), MainActivity.class); startActivity(intent);
+                Intent intent = new Intent(getApplicationContext(), OnboardingActivity.class); startActivity(intent);
                 finish();
             }
         }
