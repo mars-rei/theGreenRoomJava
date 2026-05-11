@@ -5,25 +5,30 @@
     android:layout_height="match_parent"
     android:background="#1e1e1e"
     android:orientation="vertical"
-    android:padding="60dp"
+    android:padding="40dp"
     android:gravity="center_vertical">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="What type of user are you?"
+        android:text="@string/what_type_of_user_are_you"
         android:textColor="#EDEDE9"
         android:textSize="40sp"
         android:textStyle="bold"
         android:layout_gravity="left"
         android:gravity="left"
-        android:layout_marginBottom="32dp" />
+        android:layout_marginBottom="22dp" />
 
     <LinearLayout
+        android:id="@+id/btn_venue"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginBottom="40dp">
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/onboarding_selected_option"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="10dp">
 
         <ImageView
             android:id="@+id/venue"
@@ -36,7 +41,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Venue"
+            android:text="@string/venue"
             android:textColor="#EDEDE9"
             android:textSize="20sp"
             android:textStyle="bold"
@@ -45,10 +50,15 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/btn_musician"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginBottom="40dp">
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/onboarding_selected_option"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="10dp">
 
         <ImageView
             android:id="@+id/musician"
@@ -61,7 +71,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Musician"
+            android:text="@string/musician"
             android:textColor="#EDEDE9"
             android:textSize="20sp"
             android:textStyle="bold"
@@ -70,10 +80,15 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/btn_giggoer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginBottom="40dp">
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/onboarding_selected_option"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="10dp">
 
         <ImageView
             android:id="@+id/giggoer"
@@ -86,7 +101,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Gig-goer"
+            android:text="@string/gig_goer"
             android:textColor="#EDEDE9"
             android:textSize="20sp"
             android:textStyle="bold"
@@ -98,7 +113,7 @@
         android:id="@+id/btn_next"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:text="Next"
+        android:text="@string/next"
         android:textSize="16sp"
         android:backgroundTint="#878E76"
         android:textColor="#1C1C1A" />

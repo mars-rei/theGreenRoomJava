@@ -21,6 +21,9 @@ public class MainActivity extends AppCompatActivity {
 
         setCurrentFragment(secondFragment);
 
+        // set feed as default after stage 1 of onboarding
+        bottomNavigationView.setSelectedItemId(R.id.feed);
+
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
             if (id == R.id.events) {

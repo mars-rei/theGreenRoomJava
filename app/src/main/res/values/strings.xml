@@ -1,5 +1,9 @@
 <resources>
     <string name="app_name">theGreenRoom</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="what_type_of_user_are_you">What type of user are you?</string>
+    <string name="venue">Venue</string>
+    <string name="musician">Musician</string>
+    <string name="gig_goer">Gig-goer</string>
+    <string name="next">Next</string>
 </resources>
