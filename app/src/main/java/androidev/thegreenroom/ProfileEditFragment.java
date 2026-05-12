@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -229,13 +230,22 @@ public class ProfileEditFragment extends Fragment {
         firestore.collection("users").document(userId)
                 .set(user)
                 .addOnSuccessListener(aVoid -> {
+                    // save user id to datastore - user is likely to only have one account
+                    dataStoreManager.setUserId(userId);
+
                     // set onboarding complete flag to true
                     dataStoreManager.setOnboardingComplete(true);
 
-                    // go back to main activity - readable fragment
-                    requireActivity().getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.flFragment, new ProfileFragment())
-                            .commit();
+
+                    // switch to the right profile fragment (Readable)
+                    if (getActivity() instanceof MainActivity) {
+                        ((MainActivity) getActivity()).switchToReadableProfile();
+                    }
+
+                    if (getActivity() instanceof MainActivity) {
+                        BottomNavigationView bottomNav = getActivity().findViewById(R.id.bottomNavigationView);
+                        bottomNav.setSelectedItemId(R.id.profile);
+                    }
                 })
         ;
     }

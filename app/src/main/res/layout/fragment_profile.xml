@@ -23,7 +23,7 @@
             app:cardUseCompatPadding="true">
 
             <ImageView
-                android:id="@+id/editHeaderPhoto"
+                android:id="@+id/headerPhoto"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
@@ -34,30 +34,49 @@
         <TextView
             android:id="@+id/username"
             android:layout_marginHorizontal="20dp"
-            android:layout_marginTop="68dp"
+            android:layout_marginTop="50dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/username"
-            android:textSize="16sp"
-            android:textColor="#EDEDE9" />
-
-        <TextView
-            android:id="@+id/location"
-            android:layout_marginHorizontal="20dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/location"
-            android:textSize="16sp"
-            android:textColor="#EDEDE9" />
+            android:textSize="32dp"
+            android:textColor="#878E76"
+            android:textStyle="bold"/>
 
         <TextView
             android:id="@+id/bio"
             android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="8dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/bio"
-            android:textSize="16sp"
+            android:textSize="18dp"
             android:textColor="#EDEDE9" />
+
+        <LinearLayout
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="8dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:id="@+id/locationIcon"
+                android:layout_width="14dp"
+                android:layout_height="16dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/location"
+                android:contentDescription="location icon" />
+
+            <TextView
+                android:id="@+id/location"
+                android:layout_marginStart="6dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/location"
+                android:textSize="18dp"
+                android:textColor="#EDEDE9" />
+        </LinearLayout>
     </LinearLayout>
 
     <!-- profile photo -->
@@ -72,7 +91,7 @@
         app:cardUseCompatPadding="true">
 
         <ImageView
-            android:id="@+id/editProfilePicture"
+            android:id="@+id/profilePicture"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"

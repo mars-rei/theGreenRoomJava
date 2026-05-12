@@ -59,4 +59,7 @@ dependencies {
 
     // for cloud storage
     implementation("com.google.firebase:firebase-storage")
+
+    // for glide
+    implementation("com.github.bumptech.glide:glide:4.14.2")
 }

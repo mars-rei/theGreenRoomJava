@@ -29,13 +29,7 @@ public class MainActivity extends AppCompatActivity {
         firstFragment = new FirstFragment();
         secondFragment = new SecondFragment();
         thirdFragment = new ThirdFragment();
-
-        // if still onboarding (or later editing profile), show edit version
-        if (isOnboardingComplete) {
-            fourthFragment = new ProfileFragment();
-        } else {
-            fourthFragment = new ProfileEditFragment();
-        }
+        fourthFragment = new ProfileFragment();
 
         setCurrentFragment(secondFragment);
 
@@ -73,12 +67,17 @@ public class MainActivity extends AppCompatActivity {
 
             runOnUiThread(() -> {
                 if (!onboardingComplete) {
+                    isOnboardingComplete = false;
+                    fourthFragment = new ProfileEditFragment();
+
                     // show dialogue if not complete
                     setCurrentFragment(secondFragment);
                     bottomNavigationView.setSelectedItemId(R.id.feed);
                     showOnboardingDialog();
                 } else {
                     isOnboardingComplete = true;
+                    fourthFragment = new ProfileFragment();
+
                     setCurrentFragment(secondFragment);
                     bottomNavigationView.setSelectedItemId(R.id.feed);
                 }
@@ -107,5 +106,15 @@ public class MainActivity extends AppCompatActivity {
                 .beginTransaction()
                 .replace(R.id.flFragment, fragment)
                 .commit();
+    }
+
+    // to ensure the right fragment of profile is shown
+    public void switchToReadableProfile() {
+        fourthFragment = new ProfileFragment();
+        isOnboardingComplete = true;
+
+        if (bottomNavigationView.getSelectedItemId() == R.id.profile) {
+            setCurrentFragment(fourthFragment);
+        }
     }
 }

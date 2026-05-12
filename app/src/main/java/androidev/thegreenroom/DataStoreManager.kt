@@ -16,6 +16,7 @@ class DataStoreManager(private val context: Context) {
     companion object {
         val USER_TYPE_KEY = stringPreferencesKey("user_type")
         val ONBOARDING_COMPLETED_KEY = booleanPreferencesKey("onboarding_completed")
+        val USER_ID_KEY = stringPreferencesKey("user_id")
     }
 
     // save user type
@@ -36,6 +37,15 @@ class DataStoreManager(private val context: Context) {
         }
     }
 
+    // save user id
+    fun setUserId(userId: String) {
+        runBlocking {
+            context.dataStore.edit { prefs ->
+                prefs[USER_ID_KEY] = userId
+            }
+        }
+    }
+
 
     // read user type
     fun getUserTypeBlocking(): String {
@@ -51,6 +61,15 @@ class DataStoreManager(private val context: Context) {
         return runBlocking {
             context.dataStore.data.map { prefs ->
                 prefs[ONBOARDING_COMPLETED_KEY] ?: false
+            }.first()
+        }
+    }
+
+    // read user id
+    fun getUserIdBlocking(): String {
+        return runBlocking {
+            context.dataStore.data.map { prefs ->
+                prefs[USER_ID_KEY] ?: ""
             }.first()
         }
     }
