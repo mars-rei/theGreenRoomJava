@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "474886255329",
+    "project_id": "thegreenroom-69bc6",
+    "storage_bucket": "thegreenroom-69bc6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:474886255329:android:e6e2128f4973c202347da0",
+        "android_client_info": {
+          "package_name": "androidev.thegreenroom"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAyar4slSzL4Cnexqm9q19A2UH0cUaJN8w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -6,6 +6,10 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.runBlocking
 
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+
+
 val Context.dataStore by preferencesDataStore(name = "user_prefs")
 
 class DataStoreManager(private val context: Context) {
@@ -29,6 +33,25 @@ class DataStoreManager(private val context: Context) {
             context.dataStore.edit { prefs ->
                 prefs[ONBOARDING_COMPLETED_KEY] = completed
             }
+        }
+    }
+
+
+    // read user type
+    fun getUserTypeBlocking(): String {
+        return runBlocking {
+            context.dataStore.data.map { prefs ->
+                prefs[USER_TYPE_KEY] ?: ""
+            }.first()
+        }
+    }
+
+    // read onboarding status
+    fun isOnboardingCompletedBlocking(): Boolean {
+        return runBlocking {
+            context.dataStore.data.map { prefs ->
+                prefs[ONBOARDING_COMPLETED_KEY] ?: false
+            }.first()
         }
     }
 }

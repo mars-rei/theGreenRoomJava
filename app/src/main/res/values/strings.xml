@@ -6,4 +6,13 @@
     <string name="musician">Musician</string>
     <string name="gig_goer">Gig-goer</string>
     <string name="next">Next</string>
+    <string name="save">Save</string>
+    <string name="username">Username</string>
+    <string name="location">Location</string>
+    <string name="bio">Bio</string>
+    <string name="edit_header_photo">edit header photo</string>
+    <string name="edit_profile_picture">edit profile picture</string>
+    <string name="enter_username">Enter username</string>
+    <string name="enter_location">Enter location</string>
+    <string name="enter_bio">Enter bio</string>
 </resources>

@@ -1,5 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
+
+    // for firebase
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -47,4 +50,13 @@ dependencies {
     // for DataStore preferences
     implementation("androidx.datastore:datastore-preferences:1.2.1")
     implementation("androidx.datastore:datastore-preferences-core:1.2.1")
+
+    // for firebase
+    implementation(platform("com.google.firebase:firebase-bom:34.13.0"))
+
+    // for firestore
+    implementation("com.google.firebase:firebase-firestore")
+
+    // for cloud storage
+    implementation("com.google.firebase:firebase-storage")
 }

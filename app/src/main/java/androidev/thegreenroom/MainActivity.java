@@ -5,19 +5,37 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+// for onboarding dialog overlay
+import androidx.appcompat.app.AlertDialog;
+
 public class MainActivity extends AppCompatActivity {
+
+    private BottomNavigationView bottomNavigationView;
+    private DataStoreManager dataStoreManager;
+
+    private Fragment firstFragment, secondFragment, thirdFragment, fourthFragment;
+    private boolean isOnboardingComplete = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        // initialising DataStoreManager
+        dataStoreManager = new DataStoreManager(this);
 
-        Fragment firstFragment = new FirstFragment();
-        Fragment secondFragment = new SecondFragment();
-        Fragment thirdFragment = new ThirdFragment();
-        Fragment fourthFragment = new FourthFragment();
+        bottomNavigationView = findViewById(R.id.bottomNavigationView);
+
+        firstFragment = new FirstFragment();
+        secondFragment = new SecondFragment();
+        thirdFragment = new ThirdFragment();
+
+        // if still onboarding (or later editing profile), show edit version
+        if (isOnboardingComplete) {
+            fourthFragment = new ProfileFragment();
+        } else {
+            fourthFragment = new ProfileEditFragment();
+        }
 
         setCurrentFragment(secondFragment);
 
@@ -26,6 +44,13 @@ public class MainActivity extends AppCompatActivity {
 
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
+
+            // if user has not completed profile customisation, show dialog
+            if (!isOnboardingComplete && id == R.id.feed) {
+                showOnboardingDialog();
+                return true;
+            }
+
             if (id == R.id.events) {
                 setCurrentFragment(firstFragment);
             } else if (id == R.id.feed) {
@@ -37,6 +62,44 @@ public class MainActivity extends AppCompatActivity {
             }
             return true;
         });
+
+        // check if the dialog has to be shown
+        checkOnboardingStatus();
+    }
+
+    private void checkOnboardingStatus() {
+        new Thread(() -> {
+            boolean onboardingComplete = dataStoreManager.isOnboardingCompletedBlocking();
+
+            runOnUiThread(() -> {
+                if (!onboardingComplete) {
+                    // show dialogue if not complete
+                    setCurrentFragment(secondFragment);
+                    bottomNavigationView.setSelectedItemId(R.id.feed);
+                    showOnboardingDialog();
+                } else {
+                    isOnboardingComplete = true;
+                    setCurrentFragment(secondFragment);
+                    bottomNavigationView.setSelectedItemId(R.id.feed);
+                }
+            });
+        }).start();
+    }
+
+    private void showOnboardingDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setTitle("Welcome!")
+                .setMessage("Customise your profile to start using The Green Room.")
+                .setPositiveButton("Go to profile", (dialog, id) -> {
+                    // redirect to the 4th fragment (profile)
+                    bottomNavigationView.setSelectedItemId(R.id.profile);
+                    setCurrentFragment(fourthFragment);
+                })
+                .setCancelable(false);
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     private void setCurrentFragment(Fragment fragment) {
