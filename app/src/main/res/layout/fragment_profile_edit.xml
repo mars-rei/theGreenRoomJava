@@ -16,7 +16,7 @@
         <!-- header / banner photo -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
-            android:layout_height="140dp"
+            android:layout_height="160dp"
             app:cardCornerRadius="16dp"
             app:cardElevation="0dp"
             app:cardPreventCornerOverlap="false"
@@ -112,10 +112,10 @@
 
     <!-- profile photo -->
     <androidx.cardview.widget.CardView
-        android:layout_width="110dp"
-        android:layout_height="110dp"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
         android:layout_marginStart="24dp"
-        android:layout_marginTop="74dp"
+        android:layout_marginTop="84dp"
         app:cardCornerRadius="16dp"
         app:cardElevation="0dp"
         app:cardPreventCornerOverlap="false"
