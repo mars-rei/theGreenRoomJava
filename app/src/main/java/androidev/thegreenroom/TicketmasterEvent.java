@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
 // model class of a single ticket master event
-public class TicketmasterEvent {
+public class TicketmasterEvent implements java.io.Serializable {
 
     @SerializedName("name")
     private String name;

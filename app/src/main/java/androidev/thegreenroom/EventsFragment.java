@@ -134,16 +134,16 @@ public class EventsFragment extends Fragment {
                     .into(eventPhoto);
         }
 
-        // for url later - when event is clicked for more details include url button to redirect to event page
-        /*
-        if (event.getUrl() != null) {
-            card.setOnClickListener(v -> {
-                android.content.Intent intent = new android.content.Intent(android.content.Intent.ACTION_VIEW);
-                intent.setData(android.net.Uri.parse(event.getUrl()));
-                startActivity(intent);
-            });
-        }
-        */
+        // listener for event card to get and display more details
+        card.setOnClickListener(v -> {
+            EventDetailsFragment detailFragment = EventDetailsFragment.newInstance(event);
+
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.flFragment, detailFragment)
+                    .addToBackStack("event_detail")  // go back to events for you tab in this fragment
+                    .commit();
+        });
 
         eventsContainer.addView(card);
     }
