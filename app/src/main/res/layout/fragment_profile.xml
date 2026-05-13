@@ -16,7 +16,7 @@
         <!-- header / banner photo -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
-            android:layout_height="160dp"
+            android:layout_height="160sp"
             app:cardCornerRadius="16dp"
             app:cardElevation="0dp"
             app:cardPreventCornerOverlap="false"
@@ -83,17 +83,81 @@
             android:layout_marginTop="8dp"
             android:layout_width="135dp"
             android:layout_height="48dp"
+            android:paddingHorizontal="16dp"
             android:layout_marginHorizontal="20dp"
             android:backgroundTint="#878E76"
             android:text="Edit profile"
             android:textColor="#1C1C1A"
-            android:textSize="14sp" />
+            android:textSize="18sp" />
+
+
+        <!-- showcase, about and schedule sections -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginVertical="20dp">
+
+                <TextView
+                    android:id="@+id/showcase"
+                    android:layout_marginHorizontal="10dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/showcase"
+                    android:textSize="20sp"
+                    android:textColor="#EDEDE9"
+                    android:clickable="true"
+                    android:focusable="true"/>
+
+                <TextView
+                    android:id="@+id/about"
+                    android:layout_marginHorizontal="10dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/about"
+                    android:textSize="20sp"
+                    android:textColor="#EDEDE9"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/schedule"
+                    android:layout_marginHorizontal="10dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/schedule"
+                    android:textSize="20sp"
+                    android:textColor="#EDEDE9"
+                    android:clickable="true"
+                    android:focusable="true" />
+            </LinearLayout>
+
+            <ScrollView
+                android:id="@+id/profileSectionView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <LinearLayout
+                    android:id="@+id/profile_section_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingBottom="16dp" />
+            </ScrollView>
+
+        </LinearLayout>
+
     </LinearLayout>
 
     <!-- profile photo -->
     <androidx.cardview.widget.CardView
-        android:layout_width="120dp"
-        android:layout_height="120dp"
+        android:layout_width="120sp"
+        android:layout_height="120sp"
         android:layout_marginStart="24dp"
         android:layout_marginTop="84dp"
         app:cardCornerRadius="16dp"
@@ -109,4 +173,5 @@
             android:src="@drawable/profile_placeholder"
             android:contentDescription="@string/edit_profile_picture" />
     </androidx.cardview.widget.CardView>
+
 </FrameLayout>

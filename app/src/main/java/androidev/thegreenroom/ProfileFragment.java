@@ -6,6 +6,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,6 +25,16 @@ public class ProfileFragment extends Fragment {
     private TextView username, location, bio;
     private Button editProfileButton;
 
+    // for tabs
+    private TextView showcaseTab, aboutTab, scheduleTab;
+    private LinearLayout contentContainer;
+    private ScrollView scrollView;
+
+    // for empty tab layouts
+    private View showcaseLayout;
+    private View aboutLayout;
+    private View scheduleLayout;
+
     private FirebaseFirestore firestore;
     private DataStoreManager dataStoreManager;
 
@@ -37,8 +49,22 @@ public class ProfileFragment extends Fragment {
         username = view.findViewById(R.id.username);
         location = view.findViewById(R.id.location);
         bio = view.findViewById(R.id.bio);
-
         editProfileButton = view.findViewById(R.id.btn_edit_profile);
+
+        // for tabs
+        showcaseTab = view.findViewById(R.id.showcase);
+        aboutTab = view.findViewById(R.id.about);
+        scheduleTab = view.findViewById(R.id.schedule);
+        contentContainer = view.findViewById(R.id.profile_section_container);
+        scrollView = view.findViewById(R.id.profileSectionView);
+
+        // inflate tab layouts
+        showcaseLayout = inflater.inflate(R.layout.fragment_empty_profile_showcase, contentContainer, false);
+        aboutLayout = inflater.inflate(R.layout.fragment_empty_profile_about, contentContainer, false);
+        scheduleLayout = inflater.inflate(R.layout.fragment_empty_profile_schedule, contentContainer, false);
+
+        tabListeners();
+        aboutTab();
 
         // initialise
         dataStoreManager = new DataStoreManager(requireContext());
@@ -62,6 +88,69 @@ public class ProfileFragment extends Fragment {
 
         return view;
     }
+
+    // tabs
+    private void tabListeners() {
+        showcaseTab.setOnClickListener(v -> showcaseTab());
+        aboutTab.setOnClickListener(v -> aboutTab());
+        scheduleTab.setOnClickListener(v -> scheduleTab());
+    }
+
+    private void showcaseTab() {
+        // update tab heading styles
+        showcaseTab.setTypeface(null, android.graphics.Typeface.BOLD);
+        aboutTab.setTypeface(null, android.graphics.Typeface.NORMAL);
+        scheduleTab.setTypeface(null, android.graphics.Typeface.NORMAL);
+
+        contentContainer.removeAllViews();
+        contentContainer.addView(showcaseLayout);
+
+        Button btnAddToShowcase = showcaseLayout.findViewById(R.id.btn_edit_showcase);
+        btnAddToShowcase.setOnClickListener(v -> {
+            // TODO: Open add to showcase functionality
+        });
+
+        // stay at top of scroll
+        scrollView.post(() -> scrollView.fullScroll(ScrollView.FOCUS_UP));
+    }
+
+    private void aboutTab() {
+        // update tab heading styles
+        showcaseTab.setTypeface(null, android.graphics.Typeface.NORMAL);
+        aboutTab.setTypeface(null, android.graphics.Typeface.BOLD);
+        scheduleTab.setTypeface(null, android.graphics.Typeface.NORMAL);
+
+        contentContainer.removeAllViews();
+        contentContainer.addView(aboutLayout);
+
+        Button btnEditAbout = aboutLayout.findViewById(R.id.btn_edit_about);
+        btnEditAbout.setOnClickListener(v -> {
+            // TODO: Open edit about functionality
+        });
+
+        // stay at top of scroll
+        scrollView.post(() -> scrollView.fullScroll(ScrollView.FOCUS_UP));
+    }
+
+    private void scheduleTab() {
+        // update tab heading styles
+        showcaseTab.setTypeface(null, android.graphics.Typeface.NORMAL);
+        aboutTab.setTypeface(null, android.graphics.Typeface.NORMAL);
+        scheduleTab.setTypeface(null, android.graphics.Typeface.BOLD);
+
+        contentContainer.removeAllViews();
+        contentContainer.addView(scheduleLayout);
+
+        Button btnCreateEvent = scheduleLayout.findViewById(R.id.btn_edit_schedule);
+        btnCreateEvent.setOnClickListener(v -> {
+            // TODO: Open create event functionality
+        });
+
+        // stay at top of scroll
+        scrollView.post(() -> scrollView.fullScroll(ScrollView.FOCUS_UP));
+    }
+
+
 
     // load user data from datastore (user id) and firestore (to display)
     private void loadUserData() {
