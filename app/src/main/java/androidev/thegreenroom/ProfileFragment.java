@@ -1,5 +1,6 @@
 package androidev.thegreenroom;
 
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +19,9 @@ import androidx.fragment.app.Fragment;
 import com.bumptech.glide.Glide;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+
+import java.util.List;
 
 public class ProfileFragment extends Fragment {
 
@@ -31,12 +35,26 @@ public class ProfileFragment extends Fragment {
     private ScrollView scrollView;
 
     // for empty tab layouts
+    private View showcaseEmptyLayout;
+
+    // for filled tab layouts
     private View showcaseLayout;
     private View aboutLayout;
     private View scheduleLayout;
 
     private FirebaseFirestore firestore;
     private DataStoreManager dataStoreManager;
+    private String currentUserId;
+
+    // to refresh
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (showcaseTab.getTypeface() != null &&
+                showcaseTab.getTypeface().isBold()) {
+            loadShowcasePosts();
+        }
+    }
 
     @Nullable
     @Override
@@ -58,20 +76,23 @@ public class ProfileFragment extends Fragment {
         contentContainer = view.findViewById(R.id.profile_section_container);
         scrollView = view.findViewById(R.id.profileSectionView);
 
-        // inflate tab layouts
-        showcaseLayout = inflater.inflate(R.layout.fragment_empty_profile_showcase, contentContainer, false);
+        // inflate empty tab layouts
+        showcaseEmptyLayout = inflater.inflate(R.layout.fragment_empty_profile_showcase, contentContainer, false);
+
+        // inflate filled tab layouts
+        showcaseLayout = inflater.inflate(R.layout.fragment_filled_profile_showcase, contentContainer, false);
         aboutLayout = inflater.inflate(R.layout.fragment_empty_profile_about, contentContainer, false);
         scheduleLayout = inflater.inflate(R.layout.fragment_empty_profile_schedule, contentContainer, false);
 
         tabListeners();
-        aboutTab();
+        aboutTab(); // go to about tab as default
 
         // initialise
         dataStoreManager = new DataStoreManager(requireContext());
         firestore = FirebaseFirestore.getInstance();
 
-        // call method to load user data
-        loadUserData();
+        // load user id and user data
+        load();
 
         editProfileButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -89,6 +110,16 @@ public class ProfileFragment extends Fragment {
         return view;
     }
 
+    private void load() {
+        new Thread(() -> {
+            String userId = dataStoreManager.getUserIdBlocking();
+            requireActivity().runOnUiThread(() -> {
+                currentUserId = userId;
+                loadUserData();
+            });
+        }).start();
+    }
+
     // tabs
     private void tabListeners() {
         showcaseTab.setOnClickListener(v -> showcaseTab());
@@ -98,21 +129,86 @@ public class ProfileFragment extends Fragment {
 
     private void showcaseTab() {
         // update tab heading styles
-        showcaseTab.setTypeface(null, android.graphics.Typeface.BOLD);
-        aboutTab.setTypeface(null, android.graphics.Typeface.NORMAL);
-        scheduleTab.setTypeface(null, android.graphics.Typeface.NORMAL);
+        showcaseTab.setTypeface(null, Typeface.BOLD);
+        aboutTab.setTypeface(null, Typeface.NORMAL);
+        scheduleTab.setTypeface(null, Typeface.NORMAL);
 
         contentContainer.removeAllViews();
-        contentContainer.addView(showcaseLayout);
 
-        Button btnAddToShowcase = showcaseLayout.findViewById(R.id.btn_edit_showcase);
-        btnAddToShowcase.setOnClickListener(v -> {
-            // TODO: Open add to showcase functionality
-        });
-
-        // stay at top of scroll
-        scrollView.post(() -> scrollView.fullScroll(ScrollView.FOCUS_UP));
+        // load posts
+        loadShowcasePosts();
     }
+
+    private void loadShowcasePosts() {
+        firestore.collection("users")
+                .document(currentUserId)
+                .collection("showcase")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<DocumentSnapshot> posts = queryDocumentSnapshots.getDocuments();
+
+                    contentContainer.removeAllViews();
+
+                    if (posts.isEmpty()) {
+                        // show empty xml file if no posts
+                        contentContainer.addView(showcaseEmptyLayout);
+
+                        Button btnAddShowcase = showcaseEmptyLayout.findViewById(R.id.btn_edit_showcase);
+                        btnAddShowcase.setOnClickListener(v -> addShowcase());
+                    } else {
+                        // show filled version
+                        contentContainer.addView(showcaseLayout);
+
+                        Button btnAddShowcase = showcaseLayout.findViewById(R.id.btn_add_showcase);
+                        btnAddShowcase.setOnClickListener(v -> addShowcase());
+
+                        LinearLayout showcaseContainer = showcaseLayout.findViewById(R.id.showcase_container);
+                        showcaseContainer.removeAllViews();
+
+                        // for each post in firestore, add post to showcase display
+                        for (DocumentSnapshot document : posts) {
+                            ShowcasePost post = document.toObject(ShowcasePost.class);
+                            if (post != null) {
+                                updateShowcaseSection(showcaseContainer, post);
+                            }
+                        }
+                    }
+
+                    // stay at top of scroll
+                    scrollView.post(() -> scrollView.fullScroll(ScrollView.FOCUS_UP));
+                });
+    }
+
+    private void updateShowcaseSection(LinearLayout container, ShowcasePost post) {
+        View postView = LayoutInflater.from(getContext())
+                .inflate(R.layout.showcase_card_template, container, false);
+
+        ImageView image = postView.findViewById(R.id.image);
+        TextView title = postView.findViewById(R.id.title);
+        TextView description = postView.findViewById(R.id.description);
+
+        title.setText(post.getTitle());
+        description.setText(post.getDescription());
+
+        if (post.getPictureUrl() != null && !post.getPictureUrl().isEmpty()) {
+            Glide.with(this)
+                    .load(post.getPictureUrl())
+                    .placeholder(R.drawable.profile_placeholder)
+                    .into(image);
+        }
+
+        container.addView(postView);
+    }
+
+    private void addShowcase() {
+        ShowcaseFragment showcaseFragment = new ShowcaseFragment();
+        requireActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.flFragment, showcaseFragment)
+                .addToBackStack(null)
+                .commit();
+    }
+
 
     private void aboutTab() {
         // update tab heading styles
@@ -125,7 +221,7 @@ public class ProfileFragment extends Fragment {
 
         Button btnEditAbout = aboutLayout.findViewById(R.id.btn_edit_about);
         btnEditAbout.setOnClickListener(v -> {
-            // TODO: Open edit about functionality
+            // TODO
         });
 
         // stay at top of scroll
@@ -143,7 +239,7 @@ public class ProfileFragment extends Fragment {
 
         Button btnCreateEvent = scheduleLayout.findViewById(R.id.btn_edit_schedule);
         btnCreateEvent.setOnClickListener(v -> {
-            // TODO: Open create event functionality
+            // TODO
         });
 
         // stay at top of scroll
