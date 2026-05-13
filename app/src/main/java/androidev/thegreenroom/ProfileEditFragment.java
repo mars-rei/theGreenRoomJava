@@ -7,6 +7,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+
+import com.bumptech.glide.Glide;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.annotation.NonNull;
@@ -51,6 +53,11 @@ public class ProfileEditFragment extends Fragment {
 
     // to set onboardingComplete flag true when user saves
     private DataStoreManager dataStoreManager;
+
+    // if user is just re-editing profile
+    private String currentUsername, currentLocation, currentBio;
+    private String currentHeaderPhotoUrl, currentProfilePhotoUrl;
+    private String currentUserId;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -109,18 +116,71 @@ public class ProfileEditFragment extends Fragment {
         saveButton = view.findViewById(R.id.btn_save);
 
 
-        // for setting placeholder images
-        headerPhoto.setImageResource(R.drawable.header_placeholder);
-        profilePhoto.setImageResource(R.drawable.profile_placeholder);
-
-
         headerPhoto.setOnClickListener(v -> launchHeaderPhotoPicker());
         profilePhoto.setOnClickListener(v -> launchProfilePhotoPicker());
 
         // on save, save profile
         saveButton.setOnClickListener(v -> saveProfile());
 
+        // for if user is re-editing profile
+        loadCurrentUserData();
+
         return view;
+    }
+
+    // load current user data if onboarding has already been completed
+    private void loadCurrentUserData() {
+        new Thread(() -> {
+            currentUserId = dataStoreManager.getUserIdBlocking();
+
+            if (currentUserId != null && !currentUserId.isEmpty()) {
+                firestore.collection("users")
+                        .document(currentUserId)
+                        .get()
+                        .addOnSuccessListener(documentSnapshot -> {
+                            if (documentSnapshot.exists()) {
+                                User user = documentSnapshot.toObject(User.class);
+                                if (user != null) {
+                                    // make current data appear instead of placeholders and blank edit text fields
+                                    requireActivity().runOnUiThread(() -> setCurrentProfile(user));
+                                }
+                            }
+                        });
+            }
+        }).start();
+    }
+
+    private void setCurrentProfile(User user) {
+        // get current values
+        currentUsername = user.getUsername();
+        currentLocation = user.getLocation();
+        currentBio = user.getBio();
+        currentHeaderPhotoUrl = user.getHeaderPhotoUrl();
+        currentProfilePhotoUrl = user.getProfilePictureUrl();
+
+        // set hint text for edit text views
+        username.setHint(currentUsername);
+        location.setHint(currentLocation);
+        bio.setHint(currentBio);
+
+        // load existing photos
+        if (currentHeaderPhotoUrl != null && !currentHeaderPhotoUrl.isEmpty()) {
+            Glide.with(this)
+                    .load(currentHeaderPhotoUrl)
+                    .placeholder(R.drawable.header_placeholder)
+                    .into(headerPhoto);
+        } else {
+            headerPhoto.setImageResource(R.drawable.header_placeholder);
+        }
+
+        if (currentProfilePhotoUrl != null && !currentProfilePhotoUrl.isEmpty()) {
+            Glide.with(this)
+                    .load(currentProfilePhotoUrl)
+                    .placeholder(R.drawable.profile_placeholder)
+                    .into(profilePhoto);
+        } else {
+            profilePhoto.setImageResource(R.drawable.profile_placeholder);
+        }
     }
 
     // begin saving profile method - getting all data to be saved
@@ -132,25 +192,42 @@ public class ProfileEditFragment extends Fragment {
 
         // input validation
         if (profileUsername.isEmpty()) {
-            username.setError("Username is required");
-            return;
+            if (currentUsername != null && !currentUsername.isEmpty()) {
+                profileUsername = currentUsername;
+            } else {
+                username.setError("Username is required");
+                return;
+            }
         }
 
         if (profileLocation.isEmpty()) {
-            location.setError("Location is required");
-            return;
+            if (currentLocation != null && !currentLocation.isEmpty()) {
+                profileLocation = currentLocation;
+            } else {
+                location.setError("Location is required");
+                return;
+            }
         }
 
         if (profileBio.isEmpty()) {
-            bio.setError("Bio is required");
-            return;
+            if (currentBio != null && !currentBio.isEmpty()) {
+                profileBio = currentBio;
+            } else {
+                bio.setError("Bio is required");
+                return;
+            }
         }
 
         // get userType from DataStore
         String userType = dataStoreManager.getUserTypeBlocking();
 
-        // generate unique user id
-        String userId = UUID.randomUUID().toString();
+        // generate unique user id if no user id yet
+        String userId;
+        if (currentUserId != null && !currentUserId.isEmpty()) {
+            userId = currentUserId;
+        } else {
+            userId = UUID.randomUUID().toString();
+        }
 
         // pass user data to upload images and then save
         uploadImagesAndSave(userId, userType, profileUsername, profileLocation, profileBio);
@@ -167,18 +244,20 @@ public class ProfileEditFragment extends Fragment {
         if (headerPhotoUri != null) numUploads[0]++;
         if (profilePhotoUri != null) numUploads[0]++;
 
+        // uses current header or profile if not changed
+        final String[] headerUrl = {currentHeaderPhotoUrl != null ? currentHeaderPhotoUrl : ""};
+        final String[] profileUrl = {currentProfilePhotoUrl != null ? currentProfilePhotoUrl : ""};
+
         // save directly if no image uploads needed
         if (numUploads[0] == 0) {
-            saveUserToFirestore(userId, userType, username, location, bio, "", "");
+            saveUserToFirestore(userId, userType, username, location, bio,
+                    profileUrl[0], headerUrl[0]);
             return;
         }
 
-        final String[] headerUrl = {""};
-        final String[] profileUrl = {""};
-
         // uploading header photo
         if (headerPhotoUri != null) {
-            // configure storage path using user id and time
+
             String fileName = "header_photos/" + userId + "_" + System.currentTimeMillis() + ".jpg";
             StorageReference photoRef = storageRef.child(fileName);
 
@@ -237,7 +316,7 @@ public class ProfileEditFragment extends Fragment {
                     dataStoreManager.setOnboardingComplete(true);
 
 
-                    // switch to the right profile fragment (Readable)
+                    // switch to the right profile fragment (readable)
                     if (getActivity() instanceof MainActivity) {
                         ((MainActivity) getActivity()).switchToReadableProfile();
                     }

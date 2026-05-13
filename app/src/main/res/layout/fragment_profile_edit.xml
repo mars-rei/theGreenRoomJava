@@ -52,6 +52,7 @@
             android:inputType="text"
             android:textColor="#EDEDE9"
             android:hint="@string/enter_username"
+            android:textColorHint="#BABABA"
             tools:ignore="LabelFor" />
 
         <TextView
@@ -74,6 +75,7 @@
             android:inputType="text"
             android:textColor="#EDEDE9"
             android:hint="@string/enter_location"
+            android:textColorHint="#BABABA"
             tools:ignore="LabelFor" />
 
         <TextView
@@ -97,6 +99,7 @@
             android:minLines="3"
             android:textColor="#EDEDE9"
             android:hint="@string/enter_bio"
+            android:textColorHint="#BABABA"
             tools:ignore="LabelFor" />
 
         <Button
