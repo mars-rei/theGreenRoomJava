@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
 
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
 
-        firstFragment = new FirstFragment();
+        firstFragment = new EventsFragment();
         secondFragment = new SecondFragment();
         thirdFragment = new ThirdFragment();
         fourthFragment = new ProfileFragment();

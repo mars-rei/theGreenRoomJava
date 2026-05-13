@@ -61,5 +61,11 @@ dependencies {
     implementation("com.google.firebase:firebase-storage")
 
     // for glide
-    implementation("com.github.bumptech.glide:glide:4.14.2")
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+
+    // to allow api
+    // retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    // gson
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 }

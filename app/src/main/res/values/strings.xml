@@ -15,4 +15,8 @@
     <string name="enter_username">Enter username</string>
     <string name="enter_location">Enter location</string>
     <string name="enter_bio">Enter bio</string>
+    <string name="my_events">My Events</string>
+    <string name="events_for_you">Events For You</string>
+    <string name="event_photo">Event photo</string>
+    <string name="at">\@</string>
 </resources>
