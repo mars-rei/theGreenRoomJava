@@ -13,7 +13,7 @@ public class MainActivity extends AppCompatActivity {
     private BottomNavigationView bottomNavigationView;
     private DataStoreManager dataStoreManager;
 
-    private Fragment firstFragment, secondFragment, thirdFragment, fourthFragment;
+    private Fragment firstFragment, secondFragment, thirdFragment;
     private boolean isOnboardingComplete = false;
 
     @Override
@@ -28,8 +28,7 @@ public class MainActivity extends AppCompatActivity {
 
         firstFragment = new EventsFragment();
         secondFragment = new FeedFragment();
-        thirdFragment = new ThirdFragment();
-        fourthFragment = new ProfileFragment();
+        thirdFragment = new ProfileFragment();
 
         setCurrentFragment(secondFragment);
 
@@ -49,10 +48,8 @@ public class MainActivity extends AppCompatActivity {
                 setCurrentFragment(firstFragment);
             } else if (id == R.id.feed) {
                 setCurrentFragment(secondFragment);
-            } else if (id == R.id.notifications) {
-                setCurrentFragment(thirdFragment);
             } else if (id == R.id.profile) {
-                setCurrentFragment(fourthFragment);
+                setCurrentFragment(thirdFragment);
             }
             return true;
         });
@@ -68,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
             runOnUiThread(() -> {
                 if (!onboardingComplete) {
                     isOnboardingComplete = false;
-                    fourthFragment = new ProfileEditFragment();
+                    thirdFragment = new ProfileEditFragment();
 
                     // show dialogue if not complete
                     setCurrentFragment(secondFragment);
@@ -76,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
                     showOnboardingDialog();
                 } else {
                     isOnboardingComplete = true;
-                    fourthFragment = new ProfileFragment();
+                    thirdFragment = new ProfileFragment();
 
                     setCurrentFragment(secondFragment);
                     bottomNavigationView.setSelectedItemId(R.id.feed);
@@ -93,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
                 .setPositiveButton("Go to profile", (dialog, id) -> {
                     // redirect to the 4th fragment (profile)
                     bottomNavigationView.setSelectedItemId(R.id.profile);
-                    setCurrentFragment(fourthFragment);
+                    setCurrentFragment(thirdFragment);
                 })
                 .setCancelable(false);
 
@@ -110,11 +107,11 @@ public class MainActivity extends AppCompatActivity {
 
     // to ensure the right fragment of profile is shown
     public void switchToReadableProfile() {
-        fourthFragment = new ProfileFragment();
+        thirdFragment = new ProfileFragment();
         isOnboardingComplete = true;
 
         if (bottomNavigationView.getSelectedItemId() == R.id.profile) {
-            setCurrentFragment(fourthFragment);
+            setCurrentFragment(thirdFragment);
         }
     }
 }
