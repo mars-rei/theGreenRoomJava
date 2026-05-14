@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#1e1e1e"
+    android:paddingTop="54dp"
+    android:paddingHorizontal="20dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/btn_back"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginEnd="4dp"
+                android:contentDescription="@string/back_arrow"
+                android:src="@drawable/back" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/create_an_event"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="#EDEDE9" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_marginTop="68dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/title"
+            android:textSize="16sp"
+            android:textColor="#EDEDE9" />
+
+        <EditText
+            android:id="@+id/edit_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:autofillHints=""
+            android:padding="12dp"
+            android:layout_marginBottom="16dp"
+            android:inputType="text"
+            android:textColor="#EDEDE9"
+            android:hint="@string/enter_title"
+            android:textColorHint="#BABABA"
+            tools:ignore="LabelFor" />
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/date"
+            android:textSize="16sp"
+            android:textColor="#EDEDE9" />
+
+        <EditText
+            android:id="@+id/edit_date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:autofillHints=""
+            android:padding="12dp"
+            android:layout_marginBottom="16dp"
+            android:inputType="text"
+            android:textColor="#EDEDE9"
+            android:hint="@string/enter_date"
+            android:textColorHint="#BABABA"
+            android:cursorVisible="false"
+            android:focusable="false"
+            tools:ignore="TextFields" />
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/time"
+            android:textSize="16sp"
+            android:textColor="#EDEDE9" />
+
+        <EditText
+            android:id="@+id/edit_time"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:autofillHints=""
+            android:padding="12dp"
+            android:layout_marginBottom="16dp"
+            android:inputType="text"
+            android:textColor="#EDEDE9"
+            android:hint="@string/enter_time"
+            android:textColorHint="#BABABA" />
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/venue"
+            android:textSize="16sp"
+            android:textColor="#EDEDE9" />
+
+        <EditText
+            android:id="@+id/edit_venue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:autofillHints=""
+            android:padding="12dp"
+            android:layout_marginBottom="16dp"
+            android:inputType="text"
+            android:textColor="#EDEDE9"
+            android:hint="@string/enter_venue"
+            android:textColorHint="#BABABA"
+            tools:ignore="LabelFor" />
+
+
+        <Button
+            android:id="@+id/btn_save"
+            android:layout_marginTop="40dp"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:paddingHorizontal="16dp"
+            android:backgroundTint="#878E76"
+            android:text="@string/save_event"
+            android:textColor="#1C1C1A"
+            android:textSize="18sp" />
+
+    </LinearLayout>
+</ScrollView>

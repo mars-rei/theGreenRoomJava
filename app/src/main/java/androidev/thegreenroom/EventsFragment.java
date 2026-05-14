@@ -15,7 +15,15 @@ import androidx.fragment.app.Fragment;
 
 // to help with displaying data from api
 import com.bumptech.glide.Glide;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -29,16 +37,25 @@ public class EventsFragment extends Fragment {
     private TextView myEventsTab, eventsForYouTab;
     private ScrollView scrollView;
 
+    private FirebaseFirestore firestore;
+    private DataStoreManager dataStoreManager;
+    private String currentUserId;
+
+    private List<ScheduleEvent> myScheduledEvents = new ArrayList<>();
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_events, container, false);
 
+        // initialise firestore
+        firestore = FirebaseFirestore.getInstance();
+        dataStoreManager = new DataStoreManager(requireContext());
+
         // tabs on this fragment
         myEventsTab = view.findViewById(R.id.my_events);
         eventsForYouTab = view.findViewById(R.id.events_for_you);
-
 
         eventsContainer = view.findViewById(R.id.events_container);
         scrollView = view.findViewById(R.id.scrollView);
@@ -46,10 +63,20 @@ public class EventsFragment extends Fragment {
         myEventsTab.setOnClickListener(v -> showMyEvents());
         eventsForYouTab.setOnClickListener(v -> showEventsForYou());
 
-        // load events from ticketmaster api
-        loadWestMidlandsEvents();
+        // load user id from datastore
+        loadUserId();
 
         return view;
+    }
+
+    private void loadUserId() {
+        new Thread(() -> {
+            currentUserId = dataStoreManager.getUserIdBlocking();
+            requireActivity().runOnUiThread(() -> {
+                // default is events created by the user - to improve, add events saved from events for you section
+                showMyEvents();
+            });
+        }).start();
     }
 
     private void loadWestMidlandsEvents() {
@@ -148,6 +175,113 @@ public class EventsFragment extends Fragment {
         eventsContainer.addView(card);
     }
 
+
+    private void loadMyEvents() {
+        // show my events tab is active
+        myEventsTab.setTypeface(null, android.graphics.Typeface.BOLD);
+        eventsForYouTab.setTypeface(null, android.graphics.Typeface.NORMAL);
+
+        // show buffer text when loading
+        eventsContainer.removeAllViews();
+
+        displayMessage("Loading your events...");
+
+        // get events from firestore
+        firestore.collection("users")
+                .document(currentUserId)
+                .collection("events")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    eventsContainer.removeAllViews();
+
+                    List<DocumentSnapshot> events = queryDocumentSnapshots.getDocuments();
+
+                    if (events.isEmpty()) {
+                        displayMessage("You have no events yet");
+                    } else {
+                        myScheduledEvents.clear();
+                        for (DocumentSnapshot document : events) {
+                            ScheduleEvent scheduleEvent = document.toObject(ScheduleEvent.class);
+                            if (scheduleEvent != null) {
+                                myScheduledEvents.add(scheduleEvent);
+                            }
+                        }
+                        displayMyEvents(myScheduledEvents);
+                    }
+
+                    scrollView.post(() -> scrollView.fullScroll(ScrollView.FOCUS_UP));
+                });
+    }
+
+    private void displayMyEvents(List<ScheduleEvent> events) {
+        eventsContainer.removeAllViews();
+
+        if (events.isEmpty()) {
+            displayMessage("You have no events yet");
+            return;
+        }
+
+        for (ScheduleEvent event : events) {
+            addScheduleCard(event);
+        }
+
+        scrollView.post(() -> scrollView.fullScroll(ScrollView.FOCUS_UP));
+    }
+
+    // add schedule cards to my events section
+    private void addScheduleCard(ScheduleEvent event) {
+        View card = LayoutInflater.from(getContext())
+                .inflate(R.layout.schedule_card_template, eventsContainer, false);
+
+        TextView title = card.findViewById(R.id.event_name);
+        TextView venue = card.findViewById(R.id.venue_name);
+        TextView dateTime = card.findViewById(R.id.event_date_time);
+
+        title.setText(event.getTitle());
+        venue.setText(event.getVenue());
+
+        String formattedDateTime = formatDateTime(event.getDate(), event.getTime());
+        dateTime.setText(formattedDateTime);
+
+        // listener for event card to get and display more details
+        card.setOnClickListener(v -> {
+            MyEventDetailsFragment detailFragment = MyEventDetailsFragment.newInstance(event);
+
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.flFragment, detailFragment)
+                    .addToBackStack("event_detail")
+                    .commit();
+        });
+
+        eventsContainer.addView(card);
+    }
+
+    // format for card
+    private String formatDateTime(String dateStr, String timeStr) {
+        String[] dateParts = dateStr.split("-");
+        if (dateParts.length == 3) {
+            int year = Integer.parseInt(dateParts[0]);
+            int month = Integer.parseInt(dateParts[1]);
+            int day = Integer.parseInt(dateParts[2]);
+            LocalDate date = LocalDate.of(year, month, day);
+
+            // hh:mm format
+            String[] timeParts = timeStr.split(":");
+            if (timeParts.length == 2) {
+                int hour = Integer.parseInt(timeParts[0]);
+                int minute = Integer.parseInt(timeParts[1]);
+                LocalTime time = LocalTime.of(hour, minute);
+
+                DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd MMM, yyyy");
+                DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("h:mm a");
+
+                return date.format(dateFormatter) + " @ " + time.format(timeFormatter);
+            }
+        }
+        return dateStr + " @ " + timeStr;
+    }
+
     // show text if any errors occur / loading ux
     private void displayMessage(String message) {
         TextView textView = new TextView(getContext());
@@ -161,7 +295,7 @@ public class EventsFragment extends Fragment {
     private void showMyEvents() {
         myEventsTab.setTypeface(null, android.graphics.Typeface.BOLD);
         eventsForYouTab.setTypeface(null, android.graphics.Typeface.NORMAL);
-        eventsContainer.removeAllViews();
+        loadMyEvents();
     }
 
     private void showEventsForYou() {

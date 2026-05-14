@@ -1,6 +1,10 @@
 package androidev.thegreenroom;
 
 import com.google.gson.annotations.SerializedName;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 // model class of a single ticket master event
@@ -40,16 +44,19 @@ public class TicketmasterEvent implements java.io.Serializable {
 
     // gets time with date
     public String getDateTime() {
-        if (dates != null && dates.getStart() != null) {
-            String date = dates.getStart().getLocalDate();
-            String time = dates.getStart().getLocalTime();
+        String dateString = dates.getStart().getLocalDate();
+        String timeString = dates.getStart().getLocalTime();
 
-            if (date != null && !date.isEmpty()) {
-                if (time != null && !time.isEmpty()) {
-                    return date + " at " + time;
-                }
-                return date;
+        if (dateString != null && !dateString.isEmpty()) {
+            LocalDate date = LocalDate.parse(dateString);
+            String formattedDate = date.format(DateTimeFormatter.ofPattern("dd MMM, yyyy"));
+
+            if (timeString != null && !timeString.isEmpty()) {
+                LocalTime time = LocalTime.parse(timeString);
+                String formattedTime = time.format(DateTimeFormatter.ofPattern("h:mm a"));
+                return formattedDate + " @ " + formattedTime;
             }
+            return formattedDate;
         }
         return "Date & time TBC";
     }

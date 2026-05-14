@@ -28,4 +28,13 @@
     <string name="add_teaser_photo">Add teaser photo</string>
     <string name="description">Description</string>
     <string name="edit_about_section">Edit about section</string>
+    <string name="create_an_event">Create an event</string>
+    <string name="date">Date</string>
+    <string name="save_event">Save event</string>
+    <string name="time">Time</string>
+    <string name="enter_date">Enter date</string>
+    <string name="enter_venue">Enter venue</string>
+    <string name="title">Title</string>
+    <string name="back_arrow">Back arrow</string>
+    <string name="enter_time">Enter time</string>
 </resources>

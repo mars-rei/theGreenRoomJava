@@ -19,6 +19,9 @@ import com.bumptech.glide.Glide;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class ProfileFragment extends Fragment {
@@ -32,14 +35,11 @@ public class ProfileFragment extends Fragment {
     private LinearLayout contentContainer;
     private ScrollView scrollView;
 
-    // for empty tab layouts
+    // tab layouts
     private View showcaseEmptyLayout;
     private View aboutEmptyLayout;
-
-    // for filled tab layouts
-    private View showcaseLayout;
+    private View scheduleEmptyLayout;
     private View aboutLayout;
-    private View scheduleLayout;
 
     private FirebaseFirestore firestore;
     private DataStoreManager dataStoreManager;
@@ -57,6 +57,11 @@ public class ProfileFragment extends Fragment {
         if (aboutTab.getTypeface() != null &&
                 aboutTab.getTypeface().isBold()) {
             loadAboutSection();
+        }
+
+        if (scheduleTab.getTypeface() != null &&
+                scheduleTab.getTypeface().isBold()) {
+            loadScheduleEvents();
         }
     }
 
@@ -83,9 +88,7 @@ public class ProfileFragment extends Fragment {
         // inflate empty tab layouts
         showcaseEmptyLayout = inflater.inflate(R.layout.fragment_empty_profile_showcase, contentContainer, false);
         aboutEmptyLayout = inflater.inflate(R.layout.fragment_empty_profile_about, contentContainer, false);
-
-        // inflate filled tab layouts
-        scheduleLayout = inflater.inflate(R.layout.fragment_empty_profile_schedule, contentContainer, false);
+        scheduleEmptyLayout = inflater.inflate(R.layout.fragment_empty_profile_schedule, contentContainer, false);
 
         tabListeners();
 
@@ -321,6 +324,7 @@ public class ProfileFragment extends Fragment {
         }
     }
 
+
     private void scheduleTab() {
         // update tab heading styles
         showcaseTab.setTypeface(null, android.graphics.Typeface.NORMAL);
@@ -328,16 +332,126 @@ public class ProfileFragment extends Fragment {
         scheduleTab.setTypeface(null, android.graphics.Typeface.BOLD);
 
         contentContainer.removeAllViews();
-        contentContainer.addView(scheduleLayout);
 
-        Button btnCreateEvent = scheduleLayout.findViewById(R.id.btn_edit_schedule);
-        btnCreateEvent.setOnClickListener(v -> {
-            // TODO
+        // load posts
+        loadScheduleEvents();
+    }
+
+    private void loadScheduleEvents() {
+        if (currentUserId == null) return;
+
+        firestore.collection("users")
+                .document(currentUserId)
+                .collection("events")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<DocumentSnapshot> events = queryDocumentSnapshots.getDocuments();
+
+                    contentContainer.removeAllViews();
+
+                    if (events.isEmpty()) {
+                        // show empty xml file if no events
+                        contentContainer.addView(scheduleEmptyLayout);
+
+                        Button btnAddSchedule = scheduleEmptyLayout.findViewById(R.id.btn_edit_schedule);
+                        btnAddSchedule.setOnClickListener(v -> addSchedule());
+                    } else {
+                        View filledScheduleLayout = LayoutInflater.from(getContext())
+                                .inflate(R.layout.fragment_filled_profile_schedule, contentContainer, false);
+
+                        contentContainer.addView(filledScheduleLayout);
+
+                        Button btnAddSchedule = filledScheduleLayout.findViewById(R.id.btn_add_schedule);
+                        btnAddSchedule.setOnClickListener(v -> addSchedule());
+
+                        LinearLayout scheduleContainer = filledScheduleLayout.findViewById(R.id.schedule_container);
+                        scheduleContainer.removeAllViews();
+
+                        // for each event in firestore, add event to schedule display
+                        for (DocumentSnapshot document : events) {
+                            ScheduleEvent event = document.toObject(ScheduleEvent.class);
+                            if (event != null) {
+                                updateScheduleSection(scheduleContainer, event);
+                            }
+                        }
+                    }
+
+                    // stay at top of scroll
+                    scrollView.post(() -> scrollView.fullScroll(ScrollView.FOCUS_UP));
+                });
+    }
+
+    private void updateScheduleSection(LinearLayout container, ScheduleEvent event) {
+        View eventView = LayoutInflater.from(getContext())
+                .inflate(R.layout.schedule_card_template, container, false);
+
+        TextView title = eventView.findViewById(R.id.event_name);
+        TextView venue = eventView.findViewById(R.id.venue_name);
+        TextView dateTime = eventView.findViewById(R.id.event_date_time);
+
+        title.setText(event.getTitle());
+        venue.setText(event.getVenue());
+
+        // format date and time strings
+        LocalDate date = parseDate(event.getDate());
+        LocalTime time = parseTime(event.getTime());
+
+        String formattedDateTime = formatDateTime(date, time);
+        dateTime.setText(formattedDateTime);
+
+        eventView.setOnClickListener(v -> {
+            MyEventDetailsFragment detailFragment = MyEventDetailsFragment.newInstance(event);
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.flFragment, detailFragment)
+                    .addToBackStack("event_detail")
+                    .commit();
         });
 
-        // stay at top of scroll
-        scrollView.post(() -> scrollView.fullScroll(ScrollView.FOCUS_UP));
+        container.addView(eventView);
     }
+
+    private LocalDate parseDate(String date) {
+        String[] sections = date.split("-");
+        if (sections.length == 3) {
+            int year = Integer.parseInt(sections[0]);
+            int month = Integer.parseInt(sections[1]);
+            int day = Integer.parseInt(sections[2]);
+            return LocalDate.of(year, month, day);
+        }
+        return null;
+    }
+
+    private LocalTime parseTime(String time) {
+        String[] sections = time.split(":");
+        if (sections.length == 2) {
+            int hour = Integer.parseInt(sections[0]);
+            int minute = Integer.parseInt(sections[1]);
+            return LocalTime.of(hour, minute);
+        }
+        return null;
+    }
+
+    // format date and time for schedule event cards
+    private String formatDateTime(LocalDate date, LocalTime time) {
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd MMM, yyyy");
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("h:mm a");
+
+        String formattedDate = date.format(dateFormatter);
+        String formattedTime = time.format(timeFormatter);
+
+        return formattedDate + " @ " + formattedTime;
+    }
+
+    private void addSchedule() {
+        ScheduleFragment scheduleFragment = new ScheduleFragment();
+        requireActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.flFragment, scheduleFragment)
+                .addToBackStack(null)
+                .commit();
+    }
+
 
     // load user data from datastore (user id) and firestore (to display)
     private void loadUserData() {

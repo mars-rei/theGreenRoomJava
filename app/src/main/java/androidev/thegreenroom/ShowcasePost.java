@@ -7,8 +7,7 @@ public class ShowcasePost {
     private String description;
     private String pictureUrl;
 
-
-    public ShowcasePost() { }
+    public ShowcasePost() {}
     public ShowcasePost(String id, String userId, String title,
                         String description, String pictureUrl) {
         this.id = id;
