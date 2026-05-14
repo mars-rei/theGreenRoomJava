@@ -24,4 +24,8 @@
     <string name="schedule">Schedule</string>
     <string name="enter_title">Enter title</string>
     <string name="enter_description">Enter description</string>
+    <string name="save_details">Save details</string>
+    <string name="add_teaser_photo">Add teaser photo</string>
+    <string name="description">Description</string>
+    <string name="edit_about_section">Edit about section</string>
 </resources>

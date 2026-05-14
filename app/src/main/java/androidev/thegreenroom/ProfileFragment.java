@@ -10,7 +10,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,7 +18,6 @@ import androidx.fragment.app.Fragment;
 import com.bumptech.glide.Glide;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 
 import java.util.List;
 
@@ -36,6 +34,7 @@ public class ProfileFragment extends Fragment {
 
     // for empty tab layouts
     private View showcaseEmptyLayout;
+    private View aboutEmptyLayout;
 
     // for filled tab layouts
     private View showcaseLayout;
@@ -53,6 +52,11 @@ public class ProfileFragment extends Fragment {
         if (showcaseTab.getTypeface() != null &&
                 showcaseTab.getTypeface().isBold()) {
             loadShowcasePosts();
+        }
+
+        if (aboutTab.getTypeface() != null &&
+                aboutTab.getTypeface().isBold()) {
+            loadAboutSection();
         }
     }
 
@@ -78,14 +82,12 @@ public class ProfileFragment extends Fragment {
 
         // inflate empty tab layouts
         showcaseEmptyLayout = inflater.inflate(R.layout.fragment_empty_profile_showcase, contentContainer, false);
+        aboutEmptyLayout = inflater.inflate(R.layout.fragment_empty_profile_about, contentContainer, false);
 
         // inflate filled tab layouts
-        showcaseLayout = inflater.inflate(R.layout.fragment_filled_profile_showcase, contentContainer, false);
-        aboutLayout = inflater.inflate(R.layout.fragment_empty_profile_about, contentContainer, false);
         scheduleLayout = inflater.inflate(R.layout.fragment_empty_profile_schedule, contentContainer, false);
 
         tabListeners();
-        aboutTab(); // go to about tab as default
 
         // initialise
         dataStoreManager = new DataStoreManager(requireContext());
@@ -94,17 +96,13 @@ public class ProfileFragment extends Fragment {
         // load user id and user data
         load();
 
-        editProfileButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ProfileEditFragment profileEditFragment = new ProfileEditFragment();
-
-                requireActivity().getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.flFragment, profileEditFragment)
-                        .addToBackStack(null)
-                        .commit();
-            }
+        editProfileButton.setOnClickListener(v -> {
+            ProfileEditFragment profileEditFragment = new ProfileEditFragment();
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.flFragment, profileEditFragment)
+                    .addToBackStack(null)
+                    .commit();
         });
 
         return view;
@@ -116,6 +114,8 @@ public class ProfileFragment extends Fragment {
             requireActivity().runOnUiThread(() -> {
                 currentUserId = userId;
                 loadUserData();
+
+                aboutTab(); // go to about tab as default
             });
         }).start();
     }
@@ -140,6 +140,8 @@ public class ProfileFragment extends Fragment {
     }
 
     private void loadShowcasePosts() {
+        if (currentUserId == null) return;
+
         firestore.collection("users")
                 .document(currentUserId)
                 .collection("showcase")
@@ -156,13 +158,15 @@ public class ProfileFragment extends Fragment {
                         Button btnAddShowcase = showcaseEmptyLayout.findViewById(R.id.btn_edit_showcase);
                         btnAddShowcase.setOnClickListener(v -> addShowcase());
                     } else {
-                        // show filled version
-                        contentContainer.addView(showcaseLayout);
+                        View freshShowcaseLayout = LayoutInflater.from(getContext())
+                                .inflate(R.layout.fragment_filled_profile_showcase, contentContainer, false);
 
-                        Button btnAddShowcase = showcaseLayout.findViewById(R.id.btn_add_showcase);
+                        contentContainer.addView(freshShowcaseLayout);
+
+                        Button btnAddShowcase = freshShowcaseLayout.findViewById(R.id.btn_add_showcase);
                         btnAddShowcase.setOnClickListener(v -> addShowcase());
 
-                        LinearLayout showcaseContainer = showcaseLayout.findViewById(R.id.showcase_container);
+                        LinearLayout showcaseContainer = freshShowcaseLayout.findViewById(R.id.showcase_container);
                         showcaseContainer.removeAllViews();
 
                         // for each post in firestore, add post to showcase display
@@ -210,6 +214,7 @@ public class ProfileFragment extends Fragment {
     }
 
 
+
     private void aboutTab() {
         // update tab heading styles
         showcaseTab.setTypeface(null, android.graphics.Typeface.NORMAL);
@@ -217,15 +222,103 @@ public class ProfileFragment extends Fragment {
         scheduleTab.setTypeface(null, android.graphics.Typeface.NORMAL);
 
         contentContainer.removeAllViews();
-        contentContainer.addView(aboutLayout);
-
-        Button btnEditAbout = aboutLayout.findViewById(R.id.btn_edit_about);
-        btnEditAbout.setOnClickListener(v -> {
-            // TODO
-        });
+        loadAboutSection();
 
         // stay at top of scroll
         scrollView.post(() -> scrollView.fullScroll(ScrollView.FOCUS_UP));
+    }
+
+    private void loadAboutSection() {
+        if (currentUserId == null) {
+            contentContainer.removeAllViews();
+            contentContainer.addView(aboutEmptyLayout);
+            aboutButton(aboutEmptyLayout);
+            return;
+        }
+
+        firestore.collection("users")
+                .document(currentUserId)
+                .collection("about")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    contentContainer.removeAllViews();
+
+                    if (queryDocumentSnapshots.isEmpty()) {
+                        // show empty if about section has not been edited yet
+                        contentContainer.addView(aboutEmptyLayout);
+                        aboutButton(aboutEmptyLayout);
+                    } else {
+                        // else, show filled layout
+                        DocumentSnapshot doc = queryDocumentSnapshots.getDocuments().get(0);
+                        AboutSection about = doc.toObject(AboutSection.class);
+
+                        aboutLayout = LayoutInflater.from(getContext())
+                                .inflate(R.layout.fragment_filled_profile_about, contentContainer, false);
+
+                        contentContainer.addView(aboutLayout);
+
+                        if (about != null) {
+                            displayAboutContent(about);
+                        }
+
+                        aboutButton(aboutLayout);
+                    }
+
+                    scrollView.post(() -> scrollView.fullScroll(ScrollView.FOCUS_UP));
+                });
+    }
+
+    private void displayAboutContent(AboutSection about) {
+        LinearLayout aboutContainer = aboutLayout.findViewById(R.id.about_container);
+
+        aboutContainer.removeAllViews();
+
+        // dynamically adding description and teaser image if they've been added
+        if (about.getDescription() != null && !about.getDescription().isEmpty()) {
+            TextView descriptionText = new TextView(getContext());
+            descriptionText.setText(about.getDescription());
+            descriptionText.setTextSize(16f);
+            descriptionText.setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), android.R.color.white));
+            descriptionText.setPadding(0, 0, 0, 16);
+            aboutContainer.addView(descriptionText);
+        }
+
+        // TODO: need to fix styling - need better height
+        if (about.getTeaserUrl() != null && !about.getTeaserUrl().isEmpty()) {
+            ImageView teaserImage = new ImageView(getContext());
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    700
+            );
+            params.setMargins(0, 0, 0, 16);
+            teaserImage.setLayoutParams(params);
+            teaserImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
+
+            Glide.with(this)
+                    .load(about.getTeaserUrl())
+                    .placeholder(R.drawable.profile_placeholder)
+                    .into(teaserImage);
+
+            aboutContainer.addView(teaserImage);
+        }
+    }
+
+    // had to move the button here because it was bugging due to order
+    private void aboutButton(View layout) {
+        if (layout == null) return;
+
+        Button btnEditAbout = layout.findViewById(R.id.btn_edit_about);
+        if (btnEditAbout != null) {
+            btnEditAbout.setOnClickListener(null);
+            btnEditAbout.setOnClickListener(v -> {
+                AboutFragment aboutFragment = new AboutFragment();
+                requireActivity().getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.flFragment, aboutFragment)
+                        .addToBackStack(null)
+                        .commit();
+            });
+        }
     }
 
     private void scheduleTab() {
@@ -246,21 +339,16 @@ public class ProfileFragment extends Fragment {
         scrollView.post(() -> scrollView.fullScroll(ScrollView.FOCUS_UP));
     }
 
-
-
     // load user data from datastore (user id) and firestore (to display)
     private void loadUserData() {
-        // had to be moved to the background rather than main thread
         new Thread(() -> {
-            // get user id
             String userId = dataStoreManager.getUserIdBlocking();
 
-            // get user data from firestore
             firestore.collection("users")
                     .whereEqualTo("id", userId)
                     .get()
                     .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
+                        if (task.isSuccessful() && !task.getResult().isEmpty()) {
                             DocumentSnapshot document = task.getResult().getDocuments().get(0);
                             User user = document.toObject(User.class);
                             requireActivity().runOnUiThread(() -> displayUserData(user));
