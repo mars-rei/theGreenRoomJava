@@ -11,10 +11,6 @@
         android:title="Feed"
         android:icon="@drawable/feed"/>
     <item
-        android:id="@+id/notifications"
-        android:title="Notifications"
-        android:icon="@drawable/notifications"/>
-    <item
         android:id="@+id/profile"
         android:title="Profile"
         android:icon="@drawable/profile"/>
