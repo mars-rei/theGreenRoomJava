@@ -1,19 +1,18 @@
 package androidev.thegreenroom;
 
-import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 
-import com.bumptech.glide.Glide;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
 import androidx.fragment.app.Fragment;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 // for media picker
 import androidx.activity.result.ActivityResultLauncher;
@@ -21,6 +20,7 @@ import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import android.util.Log;
 import android.net.Uri;
+import com.bumptech.glide.Glide;
 
 // for firebase resources
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -50,7 +50,6 @@ public class ProfileEditFragment extends Fragment {
     private String headerPhotoUrl = "";
     private String profilePhotoUrl = "";
 
-
     // to set onboardingComplete flag true when user saves
     private DataStoreManager dataStoreManager;
 
@@ -59,6 +58,11 @@ public class ProfileEditFragment extends Fragment {
     private String currentHeaderPhotoUrl, currentProfilePhotoUrl;
     private String currentUserId;
 
+    /**
+     * On Create
+     * Initialises Firestore, Cloud Storage, reference for Cloud Storage and DataStore
+     * Initialises photo picker launchers for header and profile photos
+     */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -100,18 +104,25 @@ public class ProfileEditFragment extends Fragment {
         );
     }
 
+    /**
+     * On Create View
+     * Converts fragment profile edit XML file to View objects
+     * Sets on click listeners for media pickers and save button
+     * If profile it being re-edited, calls loadCurrentUserData
+     * @return profile edit view
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile_edit, container, false);
 
-        headerPhoto = view.findViewById(R.id.editHeaderPhoto);
-        profilePhoto = view.findViewById(R.id.editProfilePicture);
+        headerPhoto = view.findViewById(R.id.edit_header_photo);
+        profilePhoto = view.findViewById(R.id.edit_profile_picture);
 
-        username = view.findViewById(R.id.editUsername);
-        location = view.findViewById(R.id.editLocation);
-        bio = view.findViewById(R.id.editBio);
+        username = view.findViewById(R.id.edit_username);
+        location = view.findViewById(R.id.edit_location);
+        bio = view.findViewById(R.id.edit_bio);
 
         saveButton = view.findViewById(R.id.btn_save);
 
@@ -128,7 +139,12 @@ public class ProfileEditFragment extends Fragment {
         return view;
     }
 
-    // load current user data if onboarding has already been completed
+    /**
+     * Load Current User Data
+     * Gets user id
+     * If user id is not null nor empty, load user data into a User object from the Firestore "users" collection
+     * Call setCurrentProfile with user as parameter
+     */
     private void loadCurrentUserData() {
         new Thread(() -> {
             currentUserId = dataStoreManager.getUserIdBlocking();
@@ -150,6 +166,11 @@ public class ProfileEditFragment extends Fragment {
         }).start();
     }
 
+    /**
+     * Set Current Profile
+     * Loads text and image values into view
+     * @param user (User)
+     */
     private void setCurrentProfile(User user) {
         // get current values
         currentUsername = user.getUsername();
@@ -183,7 +204,13 @@ public class ProfileEditFragment extends Fragment {
         }
     }
 
-    // begin saving profile method - getting all data to be saved
+    /**
+     * Save Profile
+     * Prepares for profile saving
+     * Performs input validation
+     * Gets userType and checks if user has an id - if not, randomly generated unique id
+     * Calls uploadImagesAndSave with userId, userType, profileUsername, profileLocation, profileBio as parameters
+     */
     private void saveProfile() {
         // get values
         String profileUsername = username.getText().toString().trim();
@@ -234,6 +261,16 @@ public class ProfileEditFragment extends Fragment {
     }
 
 
+    /**
+     * UploadImagesAndSave
+     * Uploads images to Cloud Storage
+     * Calls saveUserToFirestore with parameters below
+     * @param userId (String)
+     * @param userType (String)
+     * @param username (String)
+     * @param location (String)
+     * @param bio (String)
+     */
     // to upload images to cloud storage and save other details to firestore
     private void uploadImagesAndSave(String userId, String userType, String username,
                                      String location, String bio) {
@@ -298,6 +335,20 @@ public class ProfileEditFragment extends Fragment {
         }
     }
 
+    /**
+     * SaveUserToFirestore
+     * Uploads all profile data to "users" collection in Firestore
+     * Saves user id to DataStore
+     * Flags onboarding as complete in DataStore
+     * Redirected to profile
+     * @param userId (String)
+     * @param userType (String)
+     * @param username (String)
+     * @param location (String)
+     * @param bio (String)
+     * @param profilePictureUrl (String)
+     * @param headerPhotoUrl (String)
+     */
     private void saveUserToFirestore(String userId, String userType, String username,
                                      String location, String bio,
                                      String profilePictureUrl, String headerPhotoUrl) {
@@ -322,19 +373,27 @@ public class ProfileEditFragment extends Fragment {
                     }
 
                     if (getActivity() instanceof MainActivity) {
-                        BottomNavigationView bottomNav = getActivity().findViewById(R.id.bottomNavigationView);
+                        BottomNavigationView bottomNav = getActivity().findViewById(R.id.bottom_navigation_view);
                         bottomNav.setSelectedItemId(R.id.profile);
                     }
                 })
         ;
     }
 
+    /**
+     * Launch Header Photo Picker
+     * Launches media picker for header photo
+     */
     private void launchHeaderPhotoPicker() {
         headerPhotoPickerLauncher.launch(new PickVisualMediaRequest.Builder()
                 .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
                 .build());
     }
 
+    /**
+     * Launch Profile Photo Picker
+     * Launches media picker for profile picture
+     */
     private void launchProfilePhotoPicker() {
         profilePhotoPickerLauncher.launch(new PickVisualMediaRequest.Builder()
                 .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)

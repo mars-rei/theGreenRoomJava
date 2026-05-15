@@ -8,6 +8,15 @@ public class AboutSection {
 
 
     public AboutSection() { }
+
+    /**
+     * About Section
+     * A model class for About Section objects
+     * @param id (String)
+     * @param userId (String)
+     * @param description (String)
+     * @param teaserUrl (String)
+     */
     public AboutSection(String id, String userId,
                         String description, String teaserUrl) {
         this.id = id;

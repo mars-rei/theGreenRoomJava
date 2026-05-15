@@ -1,8 +1,5 @@
 package androidev.thegreenroom;
 
-import android.net.Uri;
-import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -13,17 +10,25 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
+import android.net.Uri;
+import java.util.UUID;
+
+import androidx.fragment.app.Fragment;
+import android.view.LayoutInflater;
+import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.util.UUID;
-
+/**
+ * About Fragment
+ * The about section in the profile tab
+ */
 public class AboutFragment extends Fragment {
 
     private ImageView btnBack;
@@ -46,6 +51,11 @@ public class AboutFragment extends Fragment {
     private String existingAboutId = null;
     private String existingTeaserUrl = null;
 
+    /**
+     * On Create
+     * Initialises Firestore, Cloud Storage, the Cloud Storage reference and DataStore
+     * Initialises the photo picker for the Teaser
+     */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,6 +78,15 @@ public class AboutFragment extends Fragment {
         );
     }
 
+    /**
+     * On Create View
+     * Converts the edit about XML file into View objects
+     * Identifies objects in the XML file and stores them into variables
+     * Gets user ID from DataStore
+     * Loads the existing about section if user ID already exists
+     * Sets up button click listeners
+     * @return the inflated view
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -97,7 +116,11 @@ public class AboutFragment extends Fragment {
         return view;
     }
 
-    // check if user already has an about section
+    /**
+     * Load Exiting About Section
+     * Checks if the user already has an about section
+     * If they do, their data is loaded into the about section UI
+     */
     private void loadExistingAboutSection() {
         firestore.collection("users")
                 .document(userId)
@@ -124,6 +147,17 @@ public class AboutFragment extends Fragment {
                 });
     }
 
+    /**
+     * Setup Click Listeners
+     * On click btnBack redirects to the previous activity
+     * On click btnAddTeaser launches the photo picker for Teaser
+     * On click btnSave gets the description EditText's value and checks if the user has made at least one edit
+     * If the user has not made an edit, they are prompted to
+     * If the user has selected a photo, uploadPhotoAndSave is called with description as a parameter
+     * If the user has only changed the description, saveToFirestore is called with the description and already existing teaser url as parameters
+     * Loads the existing about section if user ID already exists
+     * Sets up button click listeners
+     */
     private void setupClickListeners() {
         btnBack.setOnClickListener(v -> {
             requireActivity().getSupportFragmentManager().popBackStack();
@@ -152,6 +186,12 @@ public class AboutFragment extends Fragment {
         });
     }
 
+    /**
+     * Upload Photo And Save
+     * The Teaser is given a unique filename and storage reference to be stored to Cloud Storage
+     * saveToFirestore is called with the description and Teaser uri as parameters
+     * @param description (String)
+     */
     private void uploadPhotoAndSave(String description) {
         String fileName = "about_teasers/" + userId + "_" + System.currentTimeMillis() + ".jpg";
         StorageReference teaserRef = storageRef.child(fileName);
@@ -164,6 +204,15 @@ public class AboutFragment extends Fragment {
                 });
     }
 
+    /**
+     * Save To Firestore
+     * The existing / newly randomly generated about section ID is stored in aboutId
+     * A new AboutSection object is created using the aboutId, userId, description and teaserUrl
+     * This object is then stored to Firestore's "about" subcollection in the "users" collection
+     * On success the user is redirected to the profile tab
+     * @param description (String)
+     * @param teaserUrl (String)
+     */
     private void saveToFirestore(String description, String teaserUrl) {
         String aboutId;
 
@@ -189,6 +238,10 @@ public class AboutFragment extends Fragment {
                 });
     }
 
+    /**
+     * Launch Teaser Picker
+     * The teaserPickerLauncher is launched to allow the user to select a photo from their device
+     */
     private void launchTeaserPicker() {
         teaserPickerLauncher.launch(new PickVisualMediaRequest.Builder()
                 .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)

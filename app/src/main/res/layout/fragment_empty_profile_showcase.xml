@@ -6,7 +6,7 @@
     android:padding="20dp">
 
     <ImageView
-        android:id="@+id/showcaseIcon"
+        android:id="@+id/showcase_icon"
         android:layout_marginTop="10dp"
         android:layout_width="100dp"
         android:layout_height="wrap_content"
@@ -17,7 +17,7 @@
         android:layout_marginTop="40dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Nothing here yet"
+        android:text="@string/nothing_here_yet"
         android:textSize="24dp"
         android:textColor="#EDEDE9"
         android:layout_gravity="center_horizontal"/>
@@ -29,7 +29,7 @@
         android:layout_height="48dp"
         android:paddingHorizontal="24dp"
         android:backgroundTint="#878E76"
-        android:text="Add to showcase"
+        android:text="@string/add_to_showcase"
         android:textColor="#1C1C1A"
         android:textSize="18sp"
         android:layout_gravity="center_horizontal"/>

@@ -9,10 +9,19 @@ public class User {
     private String profilePictureUrl;
     private String headerPhotoUrl;
 
-    // private String email;
-    // private int numEvents;
-
     public User() { }
+
+    /**
+     * User
+     * A model class for User objects
+     * @param id (String)
+     * @param userType (String)
+     * @param username (String)
+     * @param bio (String)
+     * @param location (String)
+     * @param profilePictureUrl (String)
+     * @param headerPhotoUrl (String)
+     */
     public User(String id, String userType, String username,
                 String bio, String location, String profilePictureUrl,
                 String headerPhotoUrl) {
@@ -64,9 +73,7 @@ public class User {
     public void setLocation(String location) {
         this.location = location;
     }
-    public void setProfilePictureUrl(String profilePictureUrl) {
-        this.profilePictureUrl = profilePictureUrl;
-    }
+    public void setProfilePictureUrl(String profilePictureUrl) { this.profilePictureUrl = profilePictureUrl; }
     public void setHeaderPhotoUrl(String headerPhotoUrl) {
         this.headerPhotoUrl = headerPhotoUrl;
     }

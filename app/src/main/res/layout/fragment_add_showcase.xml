@@ -20,7 +20,7 @@
             android:gravity="center">
 
             <ImageView
-                android:id="@+id/btnBack"
+                android:id="@+id/btn_back"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginEnd="4dp"
@@ -29,7 +29,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Add to showcase"
+                android:text="@string/add_to_showcase"
                 android:textSize="24sp"
                 android:textStyle="bold"
                 android:textColor="#EDEDE9" />
@@ -39,12 +39,12 @@
             android:layout_marginTop="68dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Title"
+            android:text="@string/title"
             android:textSize="16sp"
             android:textColor="#EDEDE9" />
 
         <EditText
-            android:id="@+id/editTitle"
+            android:id="@+id/edit_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:autofillHints=""
@@ -59,12 +59,12 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Description"
+            android:text="@string/description"
             android:textSize="16sp"
             android:textColor="#EDEDE9" />
 
         <EditText
-            android:id="@+id/editBio"
+            android:id="@+id/edit_bio"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:autofillHints=""
@@ -82,7 +82,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="40dp"
-            android:text="Media"
+            android:text="@string/media"
             android:textSize="16sp"
             android:textColor="#EDEDE9" />
 
@@ -93,7 +93,7 @@
             android:layout_height="48dp"
             android:paddingHorizontal="16dp"
             android:backgroundTint="#878E76"
-            android:text="Add media"
+            android:text="@string/add_media"
             android:textColor="#1C1C1A"
             android:textSize="18sp" />
 
@@ -105,7 +105,7 @@
             android:layout_height="48dp"
             android:paddingHorizontal="16dp"
             android:backgroundTint="#878E76"
-            android:text="Post"
+            android:text="@string/post"
             android:textColor="#1C1C1A"
             android:textSize="18sp" />
 

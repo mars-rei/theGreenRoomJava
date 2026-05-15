@@ -1,8 +1,5 @@
 package androidev.thegreenroom;
 
-import android.graphics.Typeface;
-import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -13,7 +10,11 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
 import androidx.fragment.app.Fragment;
+import android.graphics.Typeface;
+import android.os.Bundle;
+import android.view.LayoutInflater;
 
 import com.bumptech.glide.Glide;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -22,6 +23,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+
 import java.util.List;
 
 public class ProfileFragment extends Fragment {
@@ -45,7 +47,10 @@ public class ProfileFragment extends Fragment {
     private DataStoreManager dataStoreManager;
     private String currentUserId;
 
-    // to refresh
+    /**
+     * On Resume
+     * To refresh data when making changes in the profile fragments
+     */
     @Override
     public void onResume() {
         super.onResume();
@@ -65,14 +70,23 @@ public class ProfileFragment extends Fragment {
         }
     }
 
+    /**
+     * On Create View
+     * Converts the fragment profile XML file into View objects
+     * Calls tabListeners
+     * Initialises DataStore and Firestore
+     * Loads user id and user data
+     * Sets on click listener for edit profile button
+     * @return profile view
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
-        headerPhoto = view.findViewById(R.id.headerPhoto);
-        profilePhoto = view.findViewById(R.id.profilePicture);
+        headerPhoto = view.findViewById(R.id.header_photo);
+        profilePhoto = view.findViewById(R.id.profile_picture);
         username = view.findViewById(R.id.username);
         location = view.findViewById(R.id.location);
         bio = view.findViewById(R.id.bio);
@@ -83,7 +97,7 @@ public class ProfileFragment extends Fragment {
         aboutTab = view.findViewById(R.id.about);
         scheduleTab = view.findViewById(R.id.schedule);
         contentContainer = view.findViewById(R.id.profile_section_container);
-        scrollView = view.findViewById(R.id.profileSectionView);
+        scrollView = view.findViewById(R.id.profile_section_view);
 
         // inflate empty tab layouts
         showcaseEmptyLayout = inflater.inflate(R.layout.fragment_empty_profile_showcase, contentContainer, false);
@@ -111,6 +125,12 @@ public class ProfileFragment extends Fragment {
         return view;
     }
 
+    /**
+     * Load
+     * Loads user id from DataStore
+     * Calls loadUserData
+     * Calls aboutTab to load as default section
+     */
     private void load() {
         new Thread(() -> {
             String userId = dataStoreManager.getUserIdBlocking();
@@ -123,13 +143,21 @@ public class ProfileFragment extends Fragment {
         }).start();
     }
 
-    // tabs
+    /**
+     * Tab Listeners
+     * Sets on click listeners for tabs
+     */
     private void tabListeners() {
         showcaseTab.setOnClickListener(v -> showcaseTab());
         aboutTab.setOnClickListener(v -> aboutTab());
         scheduleTab.setOnClickListener(v -> scheduleTab());
     }
 
+    /**
+     * Showcase Tab
+     * Updates tab to be bold
+     * Calls loadShowcasePosts
+     */
     private void showcaseTab() {
         // update tab heading styles
         showcaseTab.setTypeface(null, Typeface.BOLD);
@@ -142,6 +170,11 @@ public class ProfileFragment extends Fragment {
         loadShowcasePosts();
     }
 
+    /**
+     * Load Showcase Posts
+     * Gets showcase posts from the "showcase" subcollection of "users" in Firestore
+     * For every post, calls updateShowcaseSection
+     */
     private void loadShowcasePosts() {
         if (currentUserId == null) return;
 
@@ -186,6 +219,10 @@ public class ProfileFragment extends Fragment {
                 });
     }
 
+    /**
+     * Update Showcase Section
+     * Loads showcase post values into card and added to container view
+     */
     private void updateShowcaseSection(LinearLayout container, ShowcasePost post) {
         View postView = LayoutInflater.from(getContext())
                 .inflate(R.layout.showcase_card_template, container, false);
@@ -207,6 +244,10 @@ public class ProfileFragment extends Fragment {
         container.addView(postView);
     }
 
+    /**
+     * Add Showcase
+     * Creates a new ShowcaseFragment object and redirects user
+     */
     private void addShowcase() {
         ShowcaseFragment showcaseFragment = new ShowcaseFragment();
         requireActivity().getSupportFragmentManager()
@@ -217,7 +258,11 @@ public class ProfileFragment extends Fragment {
     }
 
 
-
+    /**
+     * About Tab
+     * Updates tab to be bold
+     * Calls loadAboutSection
+     */
     private void aboutTab() {
         // update tab heading styles
         showcaseTab.setTypeface(null, android.graphics.Typeface.NORMAL);
@@ -231,6 +276,10 @@ public class ProfileFragment extends Fragment {
         scrollView.post(() -> scrollView.fullScroll(ScrollView.FOCUS_UP));
     }
 
+    /**
+     * Load About Section
+     * Gets about data from the "about" subcollection of "users" in Firestore
+     */
     private void loadAboutSection() {
         if (currentUserId == null) {
             contentContainer.removeAllViews();
@@ -271,6 +320,11 @@ public class ProfileFragment extends Fragment {
                 });
     }
 
+    /**
+     * Display About Content
+     * Uses data to fill view
+     * Adds view to the aboutContainer
+     */
     private void displayAboutContent(AboutSection about) {
         LinearLayout aboutContainer = aboutLayout.findViewById(R.id.about_container);
 
@@ -325,6 +379,11 @@ public class ProfileFragment extends Fragment {
     }
 
 
+    /**
+     * Schedule Tab
+     * Updates tab to be bold
+     * Calls loadScheduleEvents
+     */
     private void scheduleTab() {
         // update tab heading styles
         showcaseTab.setTypeface(null, android.graphics.Typeface.NORMAL);
@@ -337,6 +396,11 @@ public class ProfileFragment extends Fragment {
         loadScheduleEvents();
     }
 
+    /**
+     * Load Schedule Events
+     * Gets data from "events" subcollection in "users" from Firestore
+     * Calls updateScheduleSection for each event
+     */
     private void loadScheduleEvents() {
         if (currentUserId == null) return;
 
@@ -381,6 +445,11 @@ public class ProfileFragment extends Fragment {
                 });
     }
 
+    /**
+     * Update Schedule Section
+     * Fills view with event data
+     * Adds event view to container
+     */
     private void updateScheduleSection(LinearLayout container, ScheduleEvent event) {
         View eventView = LayoutInflater.from(getContext())
                 .inflate(R.layout.schedule_card_template, container, false);
@@ -411,28 +480,26 @@ public class ProfileFragment extends Fragment {
         container.addView(eventView);
     }
 
+    /**
+     * Parse Date
+     * Formats date
+     */
     private LocalDate parseDate(String date) {
-        String[] sections = date.split("-");
-        if (sections.length == 3) {
-            int year = Integer.parseInt(sections[0]);
-            int month = Integer.parseInt(sections[1]);
-            int day = Integer.parseInt(sections[2]);
-            return LocalDate.of(year, month, day);
-        }
-        return null;
+        return LocalDate.parse(date);
     }
 
+    /**
+     * Parse Time
+     * Formats time
+     */
     private LocalTime parseTime(String time) {
-        String[] sections = time.split(":");
-        if (sections.length == 2) {
-            int hour = Integer.parseInt(sections[0]);
-            int minute = Integer.parseInt(sections[1]);
-            return LocalTime.of(hour, minute);
-        }
-        return null;
+        return LocalTime.parse(time);
     }
 
-    // format date and time for schedule event cards
+    /**
+     * Format Date Time
+     * Formats date and time for schedule event cards
+     */
     private String formatDateTime(LocalDate date, LocalTime time) {
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd MMM, yyyy");
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("h:mm a");
@@ -443,6 +510,10 @@ public class ProfileFragment extends Fragment {
         return formattedDate + " @ " + formattedTime;
     }
 
+    /**
+     * Add Schedule
+     * Creates new ScheduleFragment object and user is redirected
+     */
     private void addSchedule() {
         ScheduleFragment scheduleFragment = new ScheduleFragment();
         requireActivity().getSupportFragmentManager()
@@ -453,7 +524,10 @@ public class ProfileFragment extends Fragment {
     }
 
 
-    // load user data from datastore (user id) and firestore (to display)
+    /**
+     * Load User Data
+     * Loads user data from Firestore by user id from DataStore
+     */
     private void loadUserData() {
         new Thread(() -> {
             String userId = dataStoreManager.getUserIdBlocking();
@@ -471,6 +545,10 @@ public class ProfileFragment extends Fragment {
         }).start();
     }
 
+    /**
+     * Display User Data
+     * Displays profile data using data from User object
+     */
     private void displayUserData(User user) {
         // set text
         username.setText(user.getUsername());

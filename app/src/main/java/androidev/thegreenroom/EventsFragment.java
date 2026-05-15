@@ -1,7 +1,5 @@
 package androidev.thegreenroom;
 
-import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -11,7 +9,10 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
 import androidx.fragment.app.Fragment;
+import android.os.Bundle;
+import android.view.LayoutInflater;
 
 // to help with displaying data from api
 import com.bumptech.glide.Glide;
@@ -19,6 +20,7 @@ import com.bumptech.glide.Glide;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,6 +45,14 @@ public class EventsFragment extends Fragment {
 
     private List<ScheduleEvent> myScheduledEvents = new ArrayList<>();
 
+    /**
+     * On Create View
+     * Converts the fragment events XML file into View objects
+     * Initialises Firestore and DataStore
+     * Sets on click listeners for both tabs in this fragment
+     * Loads user id from datastore
+     * @return events view
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -58,7 +68,7 @@ public class EventsFragment extends Fragment {
         eventsForYouTab = view.findViewById(R.id.events_for_you);
 
         eventsContainer = view.findViewById(R.id.events_container);
-        scrollView = view.findViewById(R.id.scrollView);
+        scrollView = view.findViewById(R.id.scroll_view);
 
         myEventsTab.setOnClickListener(v -> showMyEvents());
         eventsForYouTab.setOnClickListener(v -> showEventsForYou());
@@ -69,16 +79,28 @@ public class EventsFragment extends Fragment {
         return view;
     }
 
+
+    /**
+     * Load User Id
+     * Uses a thread to get the user id from DataStore in the background
+     * Calls showMyEvents to show my events tab as default
+     */
     private void loadUserId() {
         new Thread(() -> {
             currentUserId = dataStoreManager.getUserIdBlocking();
             requireActivity().runOnUiThread(() -> {
-                // default is events created by the user - to improve, add events saved from events for you section
+                // default is events created by the user
+                // // to improve, add events saved from events for you section
                 showMyEvents();
             });
         }).start();
     }
 
+    /**
+     * Load West Midlands Events (currently only Birmigham)
+     * Calls API and queries
+     * Calls displayEvents with events as parameter if events are found
+     */
     private void loadWestMidlandsEvents() {
         // show events for you tab is active
         myEventsTab.setTypeface(null, android.graphics.Typeface.NORMAL);
@@ -121,13 +143,17 @@ public class EventsFragment extends Fragment {
 
             // if api fails
             @Override
-            public void onFailure(Call<TicketmasterResponse> call, Throwable t) {
+            public void onFailure(Call<TicketmasterResponse> call, Throwable e) {
                 eventsContainer.removeAllViews();
-                displayMessage("Error: " + t.getMessage());
+                displayMessage("Error: " + e.getMessage());
             }
         });
     }
 
+    /**
+     * Display Events
+     * Calls addEventCard with event as parameter for every event found
+     */
     private void displayEvents(List<TicketmasterEvent> events) {
         // for every event found from api pull, add an event to the events for you display
         for (TicketmasterEvent event : events) {
@@ -138,7 +164,13 @@ public class EventsFragment extends Fragment {
         scrollView.post(() -> scrollView.fullScroll(ScrollView.FOCUS_UP));
     }
 
-    // add event cards to scroll view for events for you tab
+    /**
+     * Add Event Card
+     * Converts the event card template XML file into View objects
+     * Fills text and image values
+     * Sets a click listener for the card to view more venet details
+     * Adds card to view
+     */
     private void addEventCard(TicketmasterEvent event) {
         View card = LayoutInflater.from(getContext())
                 .inflate(R.layout.event_card_template, eventsContainer, false);
@@ -146,7 +178,7 @@ public class EventsFragment extends Fragment {
         TextView eventName = card.findViewById(R.id.event_name);
         TextView venueName = card.findViewById(R.id.venue_name);
         TextView eventDateTime = card.findViewById(R.id.event_date_time);
-        ImageView eventPhoto = card.findViewById(R.id.eventPhoto);
+        ImageView eventPhoto = card.findViewById(R.id.event_photo);
 
         // set event name, venue and date and time
         eventName.setText(event.getName());
@@ -176,6 +208,11 @@ public class EventsFragment extends Fragment {
     }
 
 
+    /**
+     * Load My Events
+     * Gets data for user-created events
+     * Calls displayMyEvents to display user-created events
+     */
     private void loadMyEvents() {
         // show my events tab is active
         myEventsTab.setTypeface(null, android.graphics.Typeface.BOLD);
@@ -213,6 +250,10 @@ public class EventsFragment extends Fragment {
                 });
     }
 
+    /**
+     * Display My Events
+     * For every ScheduleEvent object calls addScheduleCard with event as parameter
+     */
     private void displayMyEvents(List<ScheduleEvent> events) {
         eventsContainer.removeAllViews();
 
@@ -228,7 +269,13 @@ public class EventsFragment extends Fragment {
         scrollView.post(() -> scrollView.fullScroll(ScrollView.FOCUS_UP));
     }
 
-    // add schedule cards to my events section
+    /**
+     * Add Schedule Card
+     * Converts the schedule card template XML file into View objects
+     * Text and image values are loaded into view
+     * Sets click listener for event for more details
+     * Adds card to container view
+     */
     private void addScheduleCard(ScheduleEvent event) {
         View card = LayoutInflater.from(getContext())
                 .inflate(R.layout.schedule_card_template, eventsContainer, false);
@@ -257,32 +304,26 @@ public class EventsFragment extends Fragment {
         eventsContainer.addView(card);
     }
 
+    /**
+     * Format Data Time
+     * Formats date and time for card UI
+     * @return formatted data and time
+     */
     // format for card
-    private String formatDateTime(String dateStr, String timeStr) {
-        String[] dateParts = dateStr.split("-");
-        if (dateParts.length == 3) {
-            int year = Integer.parseInt(dateParts[0]);
-            int month = Integer.parseInt(dateParts[1]);
-            int day = Integer.parseInt(dateParts[2]);
-            LocalDate date = LocalDate.of(year, month, day);
+    private String formatDateTime(String dateString, String timeString) {
+        LocalDate date = LocalDate.parse(dateString);
+        LocalTime time = LocalTime.parse(timeString);
 
-            // hh:mm format
-            String[] timeParts = timeStr.split(":");
-            if (timeParts.length == 2) {
-                int hour = Integer.parseInt(timeParts[0]);
-                int minute = Integer.parseInt(timeParts[1]);
-                LocalTime time = LocalTime.of(hour, minute);
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd MMM, yyyy");
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("h:mm a");
 
-                DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd MMM, yyyy");
-                DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("h:mm a");
-
-                return date.format(dateFormatter) + " @ " + time.format(timeFormatter);
-            }
-        }
-        return dateStr + " @ " + timeStr;
+        return date.format(dateFormatter) + " @ " + time.format(timeFormatter);
     }
 
-    // show text if any errors occur / loading ux
+    /**
+     * Display Message
+     * Adds a message to view if any errors occur / if events are loading
+     */
     private void displayMessage(String message) {
         TextView textView = new TextView(getContext());
         textView.setText(message);
@@ -292,12 +333,22 @@ public class EventsFragment extends Fragment {
         eventsContainer.addView(textView);
     }
 
+    /**
+     * Show My Events
+     * Sets tab text as bold
+     * Loads user-created events
+     */
     private void showMyEvents() {
         myEventsTab.setTypeface(null, android.graphics.Typeface.BOLD);
         eventsForYouTab.setTypeface(null, android.graphics.Typeface.NORMAL);
         loadMyEvents();
     }
 
+    /**
+     * Show Events For You
+     * Sets tab text as bold
+     * Loads local events
+     */
     private void showEventsForYou() {
         myEventsTab.setTypeface(null, android.graphics.Typeface.NORMAL);
         eventsForYouTab.setTypeface(null, android.graphics.Typeface.BOLD);

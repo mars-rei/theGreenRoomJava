@@ -37,4 +37,15 @@
     <string name="title">Title</string>
     <string name="back_arrow">Back arrow</string>
     <string name="enter_time">Enter time</string>
+    <string name="event_details">Event Details</string>
+    <string name="event_name">Event Name</string>
+    <string name="date_and_time">Date and time</string>
+    <string name="add_to_showcase">Add to showcase</string>
+    <string name="media">Media</string>
+    <string name="add_media">Add media</string>
+    <string name="post">Post</string>
+    <string name="friends">friends</string>
+    <string name="rating">rating</string>
+    <string name="events">events</string>
+    <string name="nothing_here_yet">Nothing here yet</string>
 </resources>

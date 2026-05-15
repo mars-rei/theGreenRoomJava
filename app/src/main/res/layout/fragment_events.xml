@@ -40,7 +40,7 @@
 
     <!-- to insert events from api or app -->
     <ScrollView
-        android:id="@+id/scrollView"
+        android:id="@+id/scroll_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 

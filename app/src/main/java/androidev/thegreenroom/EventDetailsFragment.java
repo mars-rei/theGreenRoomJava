@@ -3,7 +3,7 @@ package androidev.thegreenroom;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.LayoutInflater;
+
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -12,14 +12,15 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
 import androidx.fragment.app.Fragment;
+import android.view.LayoutInflater;
 
 import com.bumptech.glide.Glide;
 
 public class EventDetailsFragment extends Fragment {
 
     private static final String ARG_EVENT = "event_data";
-
     private TicketmasterEvent event;
 
     private ImageView eventImage;
@@ -30,7 +31,11 @@ public class EventDetailsFragment extends Fragment {
     private Button btnDirections;
     private ImageView btnBack;
 
-    // creates fragment with its necessary data (for event details of event that was clicked on)
+    /**
+     * Event Details Fragment
+     * Creates an Event Details Fragment with its necessary data
+     * @return created fragment
+     */
     public static EventDetailsFragment newInstance(TicketmasterEvent event) {
         EventDetailsFragment fragment = new EventDetailsFragment();
         Bundle args = new Bundle();
@@ -39,7 +44,10 @@ public class EventDetailsFragment extends Fragment {
         return fragment;
     }
 
-    // uses data for fragment
+    /**
+     * On Create
+     * Uses the data for the fragment
+     */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,26 +56,33 @@ public class EventDetailsFragment extends Fragment {
         }
     }
 
+    /**
+     * On Create View
+     * Converts the fragment event details XML file to View objects
+     * Calls displayEventData
+     * Initialises click listeners
+     * @return view
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_event_details, container, false);
 
-        eventImage = view.findViewById(R.id.detailEventImage);
-        eventName = view.findViewById(R.id.detailEventName);
-        venueName = view.findViewById(R.id.detailVenueName);
-        dateTime = view.findViewById(R.id.detailDateTime);
-        btnTickets = view.findViewById(R.id.btnTickets);
-        btnDirections = view.findViewById(R.id.btnDirections);
-        btnBack = view.findViewById(R.id.btnBack);
+        eventImage = view.findViewById(R.id.event_image);
+        eventName = view.findViewById(R.id.event_name);
+        venueName = view.findViewById(R.id.venue);
+        dateTime = view.findViewById(R.id.date_time);
+        btnTickets = view.findViewById(R.id.btn_tickets);
+        btnDirections = view.findViewById(R.id.btn_directions);
+        btnBack = view.findViewById(R.id.btn_back);
 
         // display event data
         displayEventData();
 
 
         // click listeners for going back, navigating to venue, and going to tickets site
-        // get tickets for event
+        // redirects users to internet to get tickets for event
         btnTickets.setOnClickListener(v -> {
             if (event.getUrl() != null && !event.getUrl().isEmpty()) {
                 Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -76,7 +91,7 @@ public class EventDetailsFragment extends Fragment {
             }
         });
 
-        // get directions to event venue
+        // redirects users to internet to get directions to event venue
         btnDirections.setOnClickListener(v -> {
             String venue = event.getVenue();
             if (venue != null && !venue.isEmpty() && !venue.equals("Venue TBD")) {
@@ -97,6 +112,10 @@ public class EventDetailsFragment extends Fragment {
         return view;
     }
 
+    /**
+     * Display Event Data
+     * Loads event text values and image into view
+     */
     private void displayEventData() {
         if (event == null) return;
 

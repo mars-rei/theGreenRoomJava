@@ -2,8 +2,7 @@ package androidev.thegreenroom;
 
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Bundle;
-import android.view.LayoutInflater;
+
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -12,9 +11,13 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import android.view.LayoutInflater;
 import androidx.fragment.app.Fragment;
+import android.os.Bundle;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
@@ -28,6 +31,11 @@ public class MyEventDetailsFragment extends Fragment {
 
     private ScheduleEvent scheduleEvent;
 
+    /**
+     * My Event Details Fragment
+     * Creates an My Event Details Fragment with its necessary data
+     * @return created fragment
+     */
     public static MyEventDetailsFragment newInstance(ScheduleEvent event) {
         MyEventDetailsFragment fragment = new MyEventDetailsFragment();
         Bundle args = new Bundle();
@@ -40,6 +48,13 @@ public class MyEventDetailsFragment extends Fragment {
         return fragment;
     }
 
+    /**
+     * On Create View
+     * Converts the fragment my event details XML file to View objects
+     * Calls displayEventData
+     * Initialises click listeners
+     * @return view
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -86,6 +101,10 @@ public class MyEventDetailsFragment extends Fragment {
         return view;
     }
 
+    /**
+     * Display Event Data
+     * Loads event text values into view
+     */
     private void displayEventData() {
         if (scheduleEvent != null) {
             eventNameText.setText(scheduleEvent.getTitle());
@@ -97,28 +116,18 @@ public class MyEventDetailsFragment extends Fragment {
         }
     }
 
-    private String formatDateTime(String dateStr, String timeStr) {
-        // YYYY-MM-DD
-        String[] dateParts = dateStr.split("-");
-        if (dateParts.length == 3) {
-            int year = Integer.parseInt(dateParts[0]);
-            int month = Integer.parseInt(dateParts[1]);
-            int day = Integer.parseInt(dateParts[2]);
-            LocalDate date = LocalDate.of(year, month, day);
+    /**
+     * Format Date Time
+     * Loads event text values and image into view
+     * @param dateString (String)
+     * @param timeString (String)
+     */
+    private String formatDateTime(String dateString, String timeString) {
+        LocalDate date = LocalDate.parse(dateString);
+        LocalTime time = LocalTime.parse(timeString);
+        LocalDateTime dateTime = LocalDateTime.of(date, time);
 
-            // HH:MM
-            String[] timeParts = timeStr.split(":");
-            if (timeParts.length == 2) {
-                int hour = Integer.parseInt(timeParts[0]);
-                int minute = Integer.parseInt(timeParts[1]);
-                LocalTime time = LocalTime.of(hour, minute);
-
-                DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd MMM, yyyy");
-                DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("h:mm a");
-
-                return date.format(dateFormatter) + " @ " + time.format(timeFormatter);
-            }
-        }
-        return dateStr + " @ " + timeStr;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM, yyyy @ h:mm a");
+        return dateTime.format(formatter);
     }
 }

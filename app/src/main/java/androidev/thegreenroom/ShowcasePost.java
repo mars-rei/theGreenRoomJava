@@ -8,6 +8,16 @@ public class ShowcasePost {
     private String pictureUrl;
 
     public ShowcasePost() {}
+
+    /**
+     * Showcase Post
+     * A model class for Showcase Post objects
+     * @param id (String)
+     * @param userId (String)
+     * @param title (String)
+     * @param description (String)
+     * @param pictureUrl (String)
+     */
     public ShowcasePost(String id, String userId, String title,
                         String description, String pictureUrl) {
         this.id = id;

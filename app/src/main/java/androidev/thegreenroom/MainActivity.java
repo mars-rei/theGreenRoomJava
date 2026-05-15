@@ -3,6 +3,7 @@ package androidev.thegreenroom;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 // for onboarding dialog overlay
@@ -10,12 +11,22 @@ import androidx.appcompat.app.AlertDialog;
 
 public class MainActivity extends AppCompatActivity {
 
-    private BottomNavigationView bottomNavigationView;
+    // for onboarding status
     private DataStoreManager dataStoreManager;
-
-    private Fragment firstFragment, secondFragment, thirdFragment;
     private boolean isOnboardingComplete = false;
 
+    // for the three bottom navigation tabs
+    private BottomNavigationView bottomNavigationView;
+    private Fragment firstFragment, secondFragment, thirdFragment;
+
+
+    /**
+     * On Create
+     * Initialises DataStore to check for onboarding status
+     * Initialises fragments for each tab in the bottom navigation
+     * Sets the feed fragment (the second fragment) as the default tab
+     * If the user has not completed onboarding, a dialog is shown
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -24,12 +35,11 @@ public class MainActivity extends AppCompatActivity {
         // initialising DataStoreManager
         dataStoreManager = new DataStoreManager(this);
 
-        bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        bottomNavigationView = findViewById(R.id.bottom_navigation_view);
 
         firstFragment = new EventsFragment();
         secondFragment = new FeedFragment();
         thirdFragment = new ProfileFragment();
-
         setCurrentFragment(secondFragment);
 
         // set feed as default after stage 1 of onboarding
@@ -58,6 +68,11 @@ public class MainActivity extends AppCompatActivity {
         checkOnboardingStatus();
     }
 
+    /**
+     * Check Onboarding Status
+     * Starts a thread to check if onboarding has been completed in the background
+     * If the user has not completed onboarding, a dialog is shown
+     */
     private void checkOnboardingStatus() {
         new Thread(() -> {
             boolean onboardingComplete = dataStoreManager.isOnboardingCompletedBlocking();
@@ -82,6 +97,11 @@ public class MainActivity extends AppCompatActivity {
         }).start();
     }
 
+    /**
+     * Show Onboarding Dialog
+     * Shows dialog to a user who has not completed onboarding
+     * The user cannot cancel the dialog and must complete profile customisation to complete onboarding
+     */
     private void showOnboardingDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
@@ -98,6 +118,10 @@ public class MainActivity extends AppCompatActivity {
         dialog.show();
     }
 
+    /**
+     * Set Current Fragment
+     * Helps switch to different tabs on the app
+     */
     private void setCurrentFragment(Fragment fragment) {
         getSupportFragmentManager()
                 .beginTransaction()
@@ -105,7 +129,10 @@ public class MainActivity extends AppCompatActivity {
                 .commit();
     }
 
-    // to ensure the right fragment of profile is shown
+    /**
+     * Switch To Readable Profile
+     * Ensures the right version of the Profile Fragment is shown
+     */
     public void switchToReadableProfile() {
         thirdFragment = new ProfileFragment();
         isOnboardingComplete = true;

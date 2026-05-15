@@ -1,8 +1,5 @@
 package androidev.thegreenroom;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-
 public class ScheduleEvent {
     private String id;
     private String userId;
@@ -12,6 +9,17 @@ public class ScheduleEvent {
     private String venue;
 
     public ScheduleEvent() {}
+
+    /**
+     * Schedule Event
+     * A model class for Schedule Event objects
+     * @param id (String)
+     * @param userId (String)
+     * @param title (String)
+     * @param date (String)
+     * @param time (String)
+     * @param venue (String)
+     */
     public ScheduleEvent(String id, String userId, String title,
                          String date, String time, String venue) {
         this.id = id;

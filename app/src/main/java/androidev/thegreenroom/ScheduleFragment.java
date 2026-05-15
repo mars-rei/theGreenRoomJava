@@ -1,9 +1,5 @@
 package androidev.thegreenroom;
 
-import android.app.DatePickerDialog;
-import android.app.TimePickerDialog;
-import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -12,14 +8,19 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import android.view.LayoutInflater;
 import androidx.fragment.app.Fragment;
+import android.os.Bundle;
 
 import com.google.firebase.firestore.FirebaseFirestore;
+import java.util.UUID;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Calendar;
-import java.util.UUID;
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 
 public class ScheduleFragment extends Fragment {
 
@@ -39,6 +40,10 @@ public class ScheduleFragment extends Fragment {
     private DataStoreManager dataStoreManager;
     private String userId;
 
+    /**
+     * On Create
+     * Initialises Firestore and DataStore
+     */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,6 +53,13 @@ public class ScheduleFragment extends Fragment {
         dataStoreManager = new DataStoreManager(requireContext());
     }
 
+    /**
+     * On Create View
+     * Converts fragment add schedule XML file into View objects
+     * Gets user id
+     * calls setupClickListeners
+     * @return add schedule view
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -71,6 +83,12 @@ public class ScheduleFragment extends Fragment {
         return view;
     }
 
+    /**
+     * Setup Click Listeners
+     * Sets up click listeners for back and save buttons
+     * Sets up click listeners for selecting time and date
+     * Upon save, saveToFirestore is called with title, selectedDate, selectedTime, and venue as parameters
+     */
     private void setupClickListeners() {
         btnBack.setOnClickListener(v -> {
             requireActivity().getSupportFragmentManager().popBackStack();
@@ -152,22 +170,31 @@ public class ScheduleFragment extends Fragment {
         });
     }
 
-    // parsing to supports hh:mm format
+    /**
+     * Parse Time
+     * Parses any user-typed  time into hh:mm format
+     */
     private LocalTime parseTime(String timeString) {
-        String[] sections = timeString.split(":");
-        if (sections.length == 2) {
-            int hour = Integer.parseInt(sections[0]);
-            int minute = Integer.parseInt(sections[1]);
-            return LocalTime.of(hour, minute);
-        }
-        return null;
+        return LocalTime.parse(timeString);
     }
 
+    /**
+     * Save To Firestore
+     * Gives event a unique id
+     * Converts date and time to strings
+     * Creates a new ScheduleEvent object with parameters
+     * Stores event in "events" subcollection in "users"
+     * Redirects user to profile
+     * @param title (String)
+     * @param date (LocalData)
+     * @param time (LocalTime)
+     * @param venue (String)
+     */
     private void saveToFirestore(String title, LocalDate date, LocalTime time, String venue) {
         String eventId = UUID.randomUUID().toString();
 
         // have to convert to strings as firestore doesn't support localdate and localtime types
-        String dateString = String.format("%d-%02d-%02d", date.getYear(), date.getMonthValue(), date.getDayOfMonth());;
+        String dateString = String.format("%d-%02d-%02d", date.getYear(), date.getMonthValue(), date.getDayOfMonth());
         String timeString = String.format("%02d:%02d", time.getHour(), time.getMinute());
 
         ScheduleEvent event = new ScheduleEvent(eventId, userId, title, dateString, timeString, venue);

@@ -1,7 +1,5 @@
 package androidev.thegreenroom;
 
-import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -10,6 +8,9 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import android.os.Bundle;
+import android.view.LayoutInflater;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
@@ -26,12 +27,19 @@ public class FeedFragment extends Fragment {
     private LinearLayout postsContainer;
     private FirebaseFirestore firestore;
 
+    /**
+     * On Create View
+     * Converts the fragment feed XML file into View objects
+     * Initialises Firestore
+     * Calls loadAllPosts
+     * @return the feed view with all loaded posts
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_feed, container, false);
 
-        postsContainer = view.findViewById(R.id.postsContainer);
+        postsContainer = view.findViewById(R.id.posts_container);
 
         firestore = FirebaseFirestore.getInstance();
 
@@ -40,6 +48,12 @@ public class FeedFragment extends Fragment {
         return view;
     }
 
+    /**
+     * Load All Posts
+     * Uses a collection group query to get all posts from the "showcase" subcollection in "users"
+     * Along with posts, gets user data to form the UI post cards
+     * Calls loadUsersData with userIds and postDocuments as parameters
+     */
     private void loadAllPosts() {
         postsContainer.removeAllViews();
 
@@ -52,7 +66,7 @@ public class FeedFragment extends Fragment {
                     // get unique user ids from posts
                     List<String> userIds = new ArrayList<>();
                     for (DocumentSnapshot document : postDocuments) {
-                        String userId = getUserIdFromPostDocument(document);
+                        String userId = getUserId(document);
                         if (!userIds.contains(userId)) {
                             userIds.add(userId);
                         }
@@ -63,32 +77,39 @@ public class FeedFragment extends Fragment {
                 });
     }
 
-    private String getUserIdFromPostDocument(DocumentSnapshot document) {
+    /**
+     * Get User Id
+     * Retrieves the user id from a document
+     * @param document (DocumentSnapshot)
+     * @return user id
+     */
+    private String getUserId(DocumentSnapshot document) {
         // get user id -> users/{userId}/showcase/{postId}
         String path = document.getReference().getPath();
         String[] sections = path.split("/");
 
         // gets user id from users collection
-        if (sections.length >= 2) {
-            return sections[1];
-        }
-        return null;
+        return sections[1];
     }
 
+    /**
+     * Load Users Data
+     * For every user id, load their document into a User object and store in a hashmap with their user id
+     * Once all users have been loaded, call displayPosts with postDocuments and users as parameters
+     * @param userIds (list of String)
+     * @param postDocuments (list of DocumentSnapshot)
+     */
     private void loadUsersData(List<String> userIds, List<DocumentSnapshot> postDocuments) {
         final int[] usersLoaded = {0};
         Map<String, User> users = new HashMap<>();
 
         for (String userId : userIds) {
-            // load user data
             firestore.collection("users")
                     .document(userId)
                     .get()
                     .addOnSuccessListener(doc -> {
                         User user = doc.toObject(User.class);
-                        if (user != null) {
-                            users.put(userId, user);
-                        }
+                        users.put(userId, user);
 
                         usersLoaded[0]++;
                         if (usersLoaded[0] == userIds.size()) {
@@ -98,21 +119,36 @@ public class FeedFragment extends Fragment {
         }
     }
 
-    private void displayPosts(List<DocumentSnapshot> postDocuments, Map<String, User> usersMap) {
+    /**
+     * Display Posts
+     * For every post in postDocuments, convert document into a ShowcasePost object
+     * Gets the user id from the post and retrieves the user with that user id
+     * Calls addPostToFeed with showcasePost and user as parameters
+     * @param postDocuments (list of DocumentSnapshot)
+     * @param users (map of String and User)
+     */
+    private void displayPosts(List<DocumentSnapshot> postDocuments, Map<String, User> users) {
         for (DocumentSnapshot post : postDocuments) {
             ShowcasePost showcasePost = post.toObject(ShowcasePost.class);
-            String userId = getUserIdFromPostDocument(post);
-            User user = usersMap.get(userId);
+            String userId = getUserId(post);
+            User user = users.get(userId);
             addPostToFeed(showcasePost, user);
         }
     }
 
+    /**
+     * Add Post To Feed
+     * Replaces text and image values in the post card template XML file
+     * Adds this card to the posts container
+     * @param post (ShowcasePost)
+     * @param user (User)
+     */
     private void addPostToFeed(ShowcasePost post, User user) {
         View postView = LayoutInflater.from(getContext())
                 .inflate(R.layout.post_card_template, postsContainer, false);
 
         // user data
-        ImageView userProfileImage = postView.findViewById(R.id.profileImage);
+        ImageView userProfileImage = postView.findViewById(R.id.profile_image);
         TextView userNameText = postView.findViewById(R.id.username);
         TextView userLocationText = postView.findViewById(R.id.location);
 

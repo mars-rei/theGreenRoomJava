@@ -5,9 +5,13 @@ import com.google.gson.annotations.SerializedName;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+
 import java.util.List;
 
-// model class of a single ticket master event
+/**
+ * Ticketmaster Event
+ * A model class for a single Ticketmaster Event
+ */
 public class TicketmasterEvent implements java.io.Serializable {
 
     @SerializedName("name")

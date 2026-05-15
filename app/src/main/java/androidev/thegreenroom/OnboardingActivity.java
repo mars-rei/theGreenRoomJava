@@ -14,9 +14,16 @@ public class OnboardingActivity extends AppCompatActivity {
 
     private Button nextButton;
     private LinearLayout btnVenue, btnMusician, btnGiggoer;
+
     private String selectedUserType = null;
     private DataStoreManager dataStoreManager;
 
+    /**
+     * On Create
+     * Initialises DataStore
+     * Sets on click listeners for each button and option
+     * If an option is selected, the selectedUserType is set
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,7 +74,11 @@ public class OnboardingActivity extends AppCompatActivity {
         });
     }
 
-    // choice state management
+    /**
+     * Select Option
+     * Choice state management
+     * Ensures the selected option is the option highlighted in the UI
+     */
     private void selectOption(LinearLayout selectedBtn) {
         btnVenue.setSelected(false);
         btnMusician.setSelected(false);
@@ -76,6 +87,12 @@ public class OnboardingActivity extends AppCompatActivity {
         selectedBtn.setSelected(true);
     }
 
+    /**
+     * Save To DataStore
+     * Sets userType in Datastore
+     * Flags onboarding as incomplete for the first time
+     * Redirects user to the main activity (the main app)
+     */
     // save to DataStore
     private void saveToDataStore() {
         new Thread(() -> {

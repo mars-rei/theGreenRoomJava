@@ -21,17 +21,16 @@
             android:layout_marginBottom="12dp">
 
             <ImageView
-                android:id="@+id/btnBack"
+                android:id="@+id/btn_back"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginEnd="4dp"
                 android:src="@drawable/back" />
 
             <TextView
-                android:id="@+id/eventDetails"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Event Details"
+                android:text="@string/event_details"
                 android:textSize="24sp"
                 android:textStyle="bold"
                 android:textColor="#EDEDE9" />
@@ -64,7 +63,7 @@
                         app:cardElevation="0dp">
 
                         <ImageView
-                            android:id="@+id/detailEventImage"
+                            android:id="@+id/event_image"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:scaleType="centerCrop"
@@ -73,7 +72,7 @@
                     </androidx.cardview.widget.CardView>
 
                     <TextView
-                        android:id="@+id/detailEventName"
+                        android:id="@+id/event_name"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Event Name"
@@ -95,7 +94,7 @@
                         android:src="@drawable/location" />
 
                     <TextView
-                        android:id="@+id/detailVenueName"
+                        android:id="@+id/venue"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Venue Name"
@@ -114,7 +113,7 @@
                         android:src="@drawable/clock" />
 
                     <TextView
-                        android:id="@+id/detailDateTime"
+                        android:id="@+id/date_time"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Date and Time"
@@ -132,7 +131,7 @@
             android:gravity="center">
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnTickets"
+                android:id="@+id/btn_tickets"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:text="Get tickets"
@@ -147,7 +146,7 @@
                 app:backgroundTint="#878E76" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnDirections"
+                android:id="@+id/btn_directions"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:text="Go to venue"
